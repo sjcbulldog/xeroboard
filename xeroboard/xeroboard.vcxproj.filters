@@ -97,10 +97,10 @@
     <ClInclude Include="XeroDisplayWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextDisplay.h">
+    <ClInclude Include="IDataDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IDataDisplay.h">
+    <ClInclude Include="TextDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

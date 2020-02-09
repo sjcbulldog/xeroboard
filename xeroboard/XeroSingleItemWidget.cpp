@@ -1,6 +1,7 @@
 #include "XeroSingleItemWidget.h"
 #include "TextDisplay.h"
 #include <QLabel>
+#include <memory>
 
 XeroSingleItemWidget::XeroSingleItemWidget(const std::string &name, QPoint loc, QWidget* parent) : XeroDisplayWidget(parent)
 {
@@ -98,7 +99,8 @@ void XeroSingleItemWidget::valueChanged()
 		if (data_display_ == nullptr)
 		{
 			auto tdisp = std::make_shared<TextDisplay>(this);
-			tdisp->setGeometry(getSize(tdisp));
+			std::shared_ptr<QWidget> wid = std::dynamic_pointer_cast<QWidget>(tdisp);
+			tdisp->setGeometry(getSize(wid.get()));
 			tdisp->show();
 			data_display_ = tdisp;
 

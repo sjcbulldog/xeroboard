@@ -1,0 +1,16 @@
+**/*.qhc
+**/*.qch
+**/*~
+**/x64
+**/.qmake.stash
+**/Debug
+**/Release
+**/debug
+**/release
+.vs
+**/*.o
+.DS_Store
+xeropath.tar
+Qt
+*/GeneratedFiles
+output

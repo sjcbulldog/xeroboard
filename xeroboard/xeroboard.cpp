@@ -133,8 +133,6 @@ void xeroboard::syncDisplay(QTreeWidgetItem* item, std::shared_ptr<NTEntryTracke
 	}
 	else
 	{
-		if (item->text(0) == "dbleft")
-			qDebug() << "Found it";
 		item->setText(1, NetworkTableMonitor::toString(*data->getValue()).c_str());
 	}
 }

@@ -165,8 +165,6 @@ std::vector<std::string> NetworkTableMonitor::split(const std::string& str)
 void NetworkTableMonitor::addEntry(const std::string& name, const std::shared_ptr<nt::Value> value)
 {
 	std::vector<std::string> words = split(name);
-	qDebug() << "Adding: " << name.c_str();
-
 	if (words.size() == 0)
 		return;
 

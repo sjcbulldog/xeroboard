@@ -45,4 +45,8 @@ private:
 	std::shared_ptr<NTEntryTracker> top_;
 	QTimer* timer_;
 	QSettings settings_;
+
+	QMenu* file_;
+	QMenu* view_;
+	QMenu* help_;
 };

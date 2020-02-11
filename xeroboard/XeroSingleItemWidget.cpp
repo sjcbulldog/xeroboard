@@ -18,12 +18,13 @@ XeroSingleItemWidget::XeroSingleItemWidget(const std::string &name, QPoint loc, 
 	source_ = new SingleDataSource(name);
 	valueChanged();
 
-	(void)connect(source_, &SingleDataSource::valueChanged, this, &XeroSingleItemWidget::valueChanged);
+	conn_ = connect(source_, &SingleDataSource::valueChanged, this, &XeroSingleItemWidget::valueChanged);
 }
 
 XeroSingleItemWidget::~XeroSingleItemWidget()
 {
-	delete source_;
+	if (source_ != nullptr)
+		delete source_;
 }
 
 XeroSingleItemWidget::DisplayType XeroSingleItemWidget::mapDataToDisplayType(std::shared_ptr<nt::Value> value)
@@ -80,7 +81,10 @@ QRect XeroSingleItemWidget::getSize(QWidget *display)
 void XeroSingleItemWidget::valueChanged()
 {
 	QRect r;
-	auto value = source_->getValue();
+	if (source_ == nullptr)
+		return;
+
+	auto value = source_->value();
 	if (value == nullptr)
 		return;
 

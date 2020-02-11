@@ -11,6 +11,13 @@ public:
 	XeroSingleItemWidget(const std::string &name, QPoint loc, QWidget* parent);
 	virtual ~XeroSingleItemWidget();
 
+	SingleDataSource* takeSource() {
+		SingleDataSource* ret = source_;
+		source_ = nullptr;
+		disconnect(conn_);
+		return ret;
+	}
+
 private:
 	enum class DisplayType
 	{
@@ -35,5 +42,6 @@ private:
 	SingleDataSource* source_;
 	DisplayType display_;
 	QPoint initial_loc_;
+	QMetaObject::Connection conn_;
 };
 

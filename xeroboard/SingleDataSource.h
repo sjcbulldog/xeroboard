@@ -13,8 +13,12 @@ public:
 	SingleDataSource(const std::string& name);
 	virtual ~SingleDataSource();
 
-	std::shared_ptr<nt::Value> getValue() {
+	std::shared_ptr<nt::Value> value() {
 		return value_;
+	}
+
+	const QString& name() {
+		return name_;
 	}
 
 signals:

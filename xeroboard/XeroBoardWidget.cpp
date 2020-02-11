@@ -1,5 +1,6 @@
 #include "XeroBoardWidget.h"
 #include "XeroSingleItemWidget.h"
+#include "XeroMultiItemWidget.h"
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <QDragMoveEvent>
@@ -44,6 +45,20 @@ void XeroBoardWidget::dropEvent(QDropEvent* ev)
 	if (data->hasFormat(textMimeType))
 	{
 		QString node = QString::fromUtf8(data->data(textMimeType));
+
+		for (auto w : display_widgets_)
+		{
+			QRect r = w->geometry();
+			if (r.contains(ev->pos()))
+			{
+				//
+				// Replace a single widget with a multi widget
+				//
+				replaceSingleWithMulti(w, node.toStdString());
+				return;
+			}
+		}
+
 		XeroSingleItemWidget* item = new XeroSingleItemWidget(node.toStdString(), ev->pos(), this);
 		display_widgets_.push_back(item);
 		item->setVisible(true);
@@ -57,4 +72,28 @@ void XeroBoardWidget::removeChild(XeroDisplayWidget *widget)
 	assert(it != display_widgets_.end());
 
 	display_widgets_.erase(it);
+}
+
+void XeroBoardWidget::replaceSingleWithMulti(XeroDisplayWidget* w, const std::string& newnode)
+{
+	auto multi = dynamic_cast<XeroMultiItemWidget *>(w);
+	if (multi != nullptr)
+	{
+		multi->addSource(newnode);
+		return;
+	}
+
+	auto single = dynamic_cast<XeroSingleItemWidget*>(w);
+	if (single != nullptr)
+	{
+		QRect r = w->geometry();
+		XeroMultiItemWidget* neww = new XeroMultiItemWidget(r, this);
+		neww->addSource(single->takeSource());
+		single->close();
+
+		neww->addSource(newnode);
+		display_widgets_.push_back(neww);
+		neww->setVisible(true);
+		return;
+	}
 }

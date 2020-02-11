@@ -1,6 +1,8 @@
 #include "xeroboard.h"
 #include "NetworkTableMonitor.h"
 #include <QDebug>
+#include <QMenu>
+#include <QMenuBar>
 
 xeroboard::xeroboard(QWidget *parent) : QMainWindow(parent)
 {
@@ -58,6 +60,14 @@ void xeroboard::createWindows()
 
 void xeroboard::createMenus()
 {
+	file_ = new QMenu(tr("&File"));
+	menuBar()->addMenu(file_);
+	file_->addAction(tr("New Layout"));
+	file_->addAction(tr("Load Layout ..."));
+	file_->addAction(tr("Save Layout"));
+	file_->addAction(tr("Save Layout As .."));
+	file_->addSeparator();
+	file_->addAction(tr("Exit"));
 }
 
 void xeroboard::createStatusBar()

@@ -63,6 +63,9 @@ void XeroDisplayWidget::mouseMoveEvent(QMouseEvent* ev)
 		QRect next(x, y, width(), height());
 		setGeometry(next);
 	}
+	else
+	{
+	}
 }
 
 void XeroDisplayWidget::mouseReleaseEvent(QMouseEvent* ev)

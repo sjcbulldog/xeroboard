@@ -119,9 +119,12 @@ void XeroSingleItemWidget::valueChanged()
 		data_display_->setValue(value);
 		break;
 	case DisplayType::TextList:
-		r = geometry();
-		r.setHeight(TitleHeight + 48);
-		setGeometry(r);
+		if (data_display_ == nullptr)
+		{
+			r = geometry();
+			r.setHeight(TitleHeight + 48);
+			setGeometry(r);
+		}
 		break;
 	case DisplayType::HorizontalBar:
 		r = geometry();

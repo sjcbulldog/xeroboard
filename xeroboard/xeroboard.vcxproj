@@ -121,6 +121,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClCompile Include="NetworkTableMonitor.cpp" />
     <ClCompile Include="SingleDataSource.cpp" />
     <ClCompile Include="TextDisplay.cpp" />
+    <ClCompile Include="TextListDisplay.cpp" />
     <ClCompile Include="xeroboard.cpp" />
     <ClCompile Include="XeroBoardWidget.cpp" />
     <ClCompile Include="XeroDisplayWidget.cpp" />
@@ -142,6 +143,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClInclude Include="NetworkTableMonitor.h" />
     <QtMoc Include="SingleDataSource.h" />
     <ClInclude Include="TextDisplay.h" />
+    <ClInclude Include="TextListDisplay.h" />
     <ClInclude Include="XeroDisplayWidget.h" />
     <ClInclude Include="XeroMultiItemWidget.h" />
     <ClInclude Include="XeroNTTreeWidget.h" />

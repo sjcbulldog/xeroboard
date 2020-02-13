@@ -12,9 +12,7 @@ XeroMultiItemWidget::XeroMultiItemWidget(QRect r, QWidget* parent) : XeroDisplay
 	display_->show();
 
 	setGeometry(r);
-
-	QRect win(0, TitleHeight, r.width(), r.height() - TitleHeight);
-	display_->setGeometry(win);
+	setChild(display_);
 }
 
 XeroMultiItemWidget::~XeroMultiItemWidget()

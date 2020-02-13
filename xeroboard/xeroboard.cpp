@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QMenu>
 #include <QMenuBar>
+#include <QTabWidget>
 
 xeroboard::xeroboard(QWidget *parent) : QMainWindow(parent)
 {
@@ -55,11 +56,19 @@ void xeroboard::createWindows()
 	nt_tree_->setSelectionMode(QAbstractItemView::SingleSelection);
 	nt_tree_->setHeaderLabels({ "Name", "Value" });
 
-	board_ = new XeroBoardWidget(left_right_splitter_);
+	tab_ = new QTabWidget(left_right_splitter_);
+	tab_->setTabsClosable(true);
+
+	(void)connect(tab_, &QTabWidget::tabCloseRequested, this, &xeroboard::closeTab);
+	(void)connect(tab_->tabBar(), &QTabBar::tabBarDoubleClicked, this, &xeroboard::editTab);
+
+	newTab();
 }
 
 void xeroboard::createMenus()
 {
+	QAction *act;
+
 	file_ = new QMenu(tr("&File"));
 	menuBar()->addMenu(file_);
 	file_->addAction(tr("New Layout"));
@@ -68,10 +77,32 @@ void xeroboard::createMenus()
 	file_->addAction(tr("Save Layout As .."));
 	file_->addSeparator();
 	file_->addAction(tr("Exit"));
+
+	view_ = new QMenu(tr("&View"));
+	menuBar()->addMenu(view_);
+	act = view_->addAction(tr("New Tab"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::newTab);
 }
 
 void xeroboard::createStatusBar()
 {
+}
+
+void xeroboard::newTab()
+{
+	QString title = "Plots (" + QString::number(count_) + ")";
+	newTabWithName(title);
+}
+
+XeroBoardWidget* xeroboard::newTabWithName(const QString &title)
+{
+	XeroBoardWidget* cnt = new XeroBoardWidget();
+	int index = tab_->addTab(cnt, title);
+	QWidget* widget = tab_->widget(index);
+	widget->setProperty(ContainerPropName, QVariant(count_));
+	containers_[count_++] = cnt;
+
+	return cnt;
 }
 
 void xeroboard::timerProc()
@@ -145,4 +176,56 @@ void xeroboard::syncDisplay(QTreeWidgetItem* item, std::shared_ptr<NTEntryTracke
 	{
 		item->setText(1, NetworkTableMonitor::toString(*data->getValue()).c_str());
 	}
+}
+
+void xeroboard::closeTab(int which)
+{
+	QWidget* widget = tab_->widget(which);
+	QVariant v = widget->property(ContainerPropName);
+	int tag = v.toInt();
+	tab_->removeTab(which);
+
+	auto it = containers_.find(tag);
+	if (it != containers_.end())
+	{
+		XeroBoardWidget* cnt = containers_[tag];
+		delete cnt;
+		containers_.erase(it);
+	}
+}
+
+void xeroboard::editTab(int which)
+{
+	which_tab_ = which;
+
+	QTabBar* bar = tab_->tabBar();
+
+	QRect r = bar->tabRect(which);
+
+	if (editor_ == nullptr)
+	{
+		editor_ = new TabEditName(bar);
+		(void)connect(editor_, &TabEditName::returnPressed, this, &xeroboard::editTabDone);
+		(void)connect(editor_, &TabEditName::escapePressed, this, &xeroboard::editTabAborted);
+	}
+
+	editor_->setGeometry(r);
+	editor_->setFocus(Qt::FocusReason::OtherFocusReason);
+	editor_->setVisible(true);
+	editor_->setText(bar->tabText(which));
+	editor_->selectAll();
+}
+
+void xeroboard::editTabDone()
+{
+	QTabBar* bar = tab_->tabBar();
+	QString txt = editor_->text();
+
+	editor_->setVisible(false);
+	bar->setTabText(which_tab_, txt);
+}
+
+void xeroboard::editTabAborted()
+{
+	editor_->setVisible(false);
 }

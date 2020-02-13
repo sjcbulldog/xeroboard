@@ -9,6 +9,7 @@ class XeroSingleItemWidget : public XeroDisplayWidget
 {
 public:
 	XeroSingleItemWidget(const std::string &name, QPoint loc, QWidget* parent);
+	XeroSingleItemWidget(SingleDataSource *src, QPoint loc, QWidget* parent);
 	virtual ~XeroSingleItemWidget();
 
 	SingleDataSource* takeSource() {
@@ -26,9 +27,8 @@ private:
 		TextList,
 		HorizontalBar,
 		VerticalBar,
-		ColorCircle,
-		ColorSquare,
-		ColorSquareList
+		Color,
+		ColorList
 	};
 
 private:

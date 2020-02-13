@@ -11,4 +11,10 @@ public:
 	virtual ~TextDisplay();
 
 	void setValue(std::shared_ptr<nt::Value> value) override ;
+
+protected:
+	virtual void resizeEvent(QResizeEvent* ev);
+
+private:
+	bool autosize_font_;
 };

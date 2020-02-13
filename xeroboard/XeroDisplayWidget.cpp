@@ -4,19 +4,42 @@
 #include <QFontMetricsF>
 #include <QMouseEvent>
 #include <QDebug>
+#include <QGuiApplication>
 #include <cassert>
 
 XeroDisplayWidget::XeroDisplayWidget(QWidget* parent) : QWidget(parent, Qt::Widget)
 {
 	setMouseTracking(true);
-	dragging_ = false;
+	mouse_mode_ = MouseMode::None;
+	mouse_cursor_ = MouseCursor::Arrow;
+	selected_ = false;
 }
 
 XeroDisplayWidget::~XeroDisplayWidget()
 {
 }
 
+XeroBoardWidget* XeroDisplayWidget::parentBoard()
+{
+	auto p = dynamic_cast<XeroBoardWidget*>(parent());
+	assert(p != nullpt);
+	return p;
+}
 
+void XeroDisplayWidget::resizeEvent(QResizeEvent* ev)
+{
+	if (child_ != nullptr)
+	{
+		QRect geom(LeftRightBorder, TitleHeight + TopBottomBorder, width() - 2 * LeftRightBorder, height() - TitleHeight - 2 * TopBottomBorder);
+		child_->setGeometry(geom);
+	}
+}
+
+void XeroDisplayWidget::setChild(std::shared_ptr<QWidget> child)
+{
+	child_ = child;
+	resizeEvent(nullptr);
+}
 
 void XeroDisplayWidget::closeEvent(QCloseEvent* ev)
 {
@@ -31,24 +54,64 @@ void XeroDisplayWidget::mousePressEvent(QMouseEvent* ev)
 	if (getCloseRectArea().contains(ev->pos()))
 	{
 		this->close();
+		return;
 	}
-	else if (getTitleBarArea().contains(ev->pos()))
+
+	if (getTitleBarArea().contains(ev->pos()))
 	{
-		dragging_ = true;
-		start_drag_point_ = ev->screenPos();
-		start_widget_point_ = geometry().topLeft();
+		bool replace = true;
+
+		if ((QGuiApplication::queryKeyboardModifiers()) & Qt::ShiftModifier)
+			replace = false ;
+
+		XeroBoardWidget* board = parentBoard();
+		board->selectWidget(this, replace);
+		return;
+	}
+
+	switch (mouse_cursor_)
+	{
+	case MouseCursor::ResizeLeft:
 		grabMouse();
+		mouse_mode_ = MouseMode::ResizeLeft;
+		start_drag_point_ = ev->screenPos();
+		start_widget_geom_ = geometry();
+		break;
+	case MouseCursor::ResizeRight:
+		grabMouse();
+		mouse_mode_ = MouseMode::ResizeRight;
+		start_drag_point_ = ev->screenPos();
+		start_widget_geom_ = geometry();
+		break;
+	case MouseCursor::ResizeLLCorner:
+		grabMouse();
+		mouse_mode_ = MouseMode::ResizeLLCorner;
+		start_drag_point_ = ev->screenPos();
+		start_widget_geom_ = geometry();
+		break;
+	case MouseCursor::ResizeLRCorner:
+		grabMouse();
+		mouse_mode_ = MouseMode::ResizeLRCorner;
+		start_drag_point_ = ev->screenPos();
+		start_widget_geom_ = geometry();
+		break;
+	case MouseCursor::ResizeBottom:
+		grabMouse();
+		mouse_mode_ = MouseMode::ResizeBottom;
+		start_drag_point_ = ev->screenPos();
+		start_widget_geom_ = geometry();
+		break;
 	}
 }
 
 void XeroDisplayWidget::mouseMoveEvent(QMouseEvent* ev)
 {
-	if (dragging_)
+	if (mouse_mode_ == MouseMode::Dragging)
 	{
 		double dx = ev->screenPos().x() - start_drag_point_.x();
 		double dy = ev->screenPos().y() - start_drag_point_.y();
-		int x = start_widget_point_.x() + dx;
-		int y = start_widget_point_.y() + dy;
+		int x = start_widget_geom_.topLeft().x() + dx;
+		int y = start_widget_geom_.topLeft().y() + dy;
 
 		QWidget* p = dynamic_cast<QWidget*>(parent());
 
@@ -63,15 +126,119 @@ void XeroDisplayWidget::mouseMoveEvent(QMouseEvent* ev)
 		QRect next(x, y, width(), height());
 		setGeometry(next);
 	}
+	else if (mouse_mode_ == MouseMode::ResizeLeft)
+	{
+		double dx = ev->screenPos().x() - start_drag_point_.x();
+		int x = start_widget_geom_.left() + dx;
+		int width = start_widget_geom_.right() - x;
+
+		if (x < 0)
+		{
+			x = 0;
+			width = start_widget_geom_.left() + start_widget_geom_.width();
+		}
+
+		QRect next(x, start_widget_geom_.y(), width, start_widget_geom_.height());
+		setGeometry(next);
+	}
+	else if (mouse_mode_ == MouseMode::ResizeRight)
+	{
+		double dx = ev->screenPos().x() - start_drag_point_.x();
+		int width = start_widget_geom_.width() + dx;
+
+		QRect next(start_widget_geom_.x(), start_widget_geom_.y(), width, start_widget_geom_.height());
+		setGeometry(next);
+	}
+	else if (mouse_mode_ == MouseMode::ResizeBottom)
+	{
+		double dy = ev->screenPos().y() - start_drag_point_.y();
+		int height = start_widget_geom_.height() + dy ;
+
+		QRect next(start_widget_geom_.x(), start_widget_geom_.y(), start_widget_geom_.width(), height);
+		setGeometry(next);
+	}
+	else if (mouse_mode_ == MouseMode::ResizeLLCorner)
+	{
+		double dx = ev->screenPos().x() - start_drag_point_.x();
+		double dy = ev->screenPos().y() - start_drag_point_.y();
+		int x = start_widget_geom_.left() + dx;
+		int width = start_widget_geom_.right() - x;
+		int height = start_widget_geom_.height() + dy;
+
+		if (x < 0)
+		{
+			x = 0;
+			width = start_widget_geom_.left() + start_widget_geom_.width();
+		}
+
+		QRect next(x, start_widget_geom_.y(), width, height);
+		setGeometry(next);
+	}
+	else if (mouse_mode_ == MouseMode::ResizeLRCorner)
+	{
+		double dx = ev->screenPos().x() - start_drag_point_.x();
+		int width = start_widget_geom_.width() + dx;
+		double dy = ev->screenPos().y() - start_drag_point_.y();
+		int height = start_widget_geom_.height() + dy;
+
+		QRect next(start_widget_geom_.x(), start_widget_geom_.y(), width, height);
+		setGeometry(next);
+	}
 	else
 	{
+		QRect r(0, height() - CornerCursorBoundary, CornerCursorBoundary, CornerCursorBoundary);
+		if (r.contains(ev->pos()) && mouse_cursor_ != MouseCursor::ResizeLLCorner)
+		{
+			setCursor(Qt::SizeBDiagCursor);
+			mouse_cursor_ = MouseCursor::ResizeLLCorner;
+			return;
+		}
+
+		r = QRect(width() - CornerCursorBoundary, height() - CornerCursorBoundary, CornerCursorBoundary, CornerCursorBoundary);
+		if (r.contains(ev->pos()) && mouse_cursor_ != MouseCursor::ResizeLRCorner)
+		{
+			setCursor(Qt::SizeFDiagCursor);
+			mouse_cursor_ = MouseCursor::ResizeLRCorner;
+			return;
+		}
+
+		r = QRect(width() - EdgeCursorBoundary, TitleHeight, EdgeCursorBoundary, height() - TitleHeight);
+		if (r.contains(ev->pos()) && mouse_cursor_ != MouseCursor::ResizeRight)
+		{
+			setCursor(Qt::SizeHorCursor);
+			mouse_cursor_ = MouseCursor::ResizeRight;
+			return;
+		}
+
+		r = QRect(0, TitleHeight, EdgeCursorBoundary, height() - TitleHeight);
+		if (r.contains(ev->pos()) && mouse_cursor_ != MouseCursor::ResizeLeft)
+		{
+			setCursor(Qt::SizeHorCursor);
+			mouse_cursor_ = MouseCursor::ResizeLeft;
+			return;
+		}
+
+		r = QRect(0, height() - EdgeCursorBoundary, width(), EdgeCursorBoundary);
+		if (r.contains(ev->pos()) && mouse_cursor_ != MouseCursor::ResizeBottom)
+		{
+			setCursor(Qt::SizeVerCursor);
+			mouse_cursor_ = MouseCursor::ResizeBottom;
+			return;
+		}
+
+		if (mouse_cursor_ != MouseCursor::Arrow)
+		{
+			setCursor(Qt::ArrowCursor);
+			mouse_cursor_ = MouseCursor::Arrow;
+		}
 	}
 }
 
 void XeroDisplayWidget::mouseReleaseEvent(QMouseEvent* ev)
 {
-	dragging_ = false;
+	mouse_mode_ = MouseMode::None;
 	releaseMouse();
+	setCursor(Qt::ArrowCursor);
 }
 
 QRect XeroDisplayWidget::getCloseRectArea()
@@ -115,4 +282,12 @@ void XeroDisplayWidget::paintEvent(QPaintEvent* ev)
 	p.setPen(QPen(QColor(0, 0, 0, 255)));
 	p.drawLine(r.topLeft(), r.bottomRight());
 	p.drawLine(r.topRight(), r.bottomLeft());
+
+	if (selected_)
+	{
+		QRectF r(0, 0, width(), height());
+		p.setPen(QPen(QColor(0, 0, 255, 255), 2.0));
+		p.setBrush(Qt::BrushStyle::NoBrush);
+		p.drawRect(r);
+	}
 }

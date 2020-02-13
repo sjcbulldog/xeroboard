@@ -1,5 +1,6 @@
 #include "XeroSingleItemWidget.h"
 #include "TextDisplay.h"
+#include "ColorDisplay.h"
 #include <QLabel>
 #include <memory>
 
@@ -21,6 +22,24 @@ XeroSingleItemWidget::XeroSingleItemWidget(const std::string &name, QPoint loc, 
 	conn_ = connect(source_, &SingleDataSource::valueChanged, this, &XeroSingleItemWidget::valueChanged);
 }
 
+XeroSingleItemWidget::XeroSingleItemWidget(SingleDataSource *src, QPoint loc, QWidget* parent) : XeroDisplayWidget(parent)
+{
+	display_ = DisplayType::None;
+	data_display_ = nullptr;
+	initial_loc_ = loc;
+
+	size_t index = src->name().lastIndexOf('/');
+	if (index == -1)
+		setTitle(src->name());
+	else
+		setTitle(src->name().mid(index + 1));
+
+	source_ = src;
+	valueChanged();
+
+	conn_ = connect(source_, &SingleDataSource::valueChanged, this, &XeroSingleItemWidget::valueChanged);
+}
+
 XeroSingleItemWidget::~XeroSingleItemWidget()
 {
 	if (source_ != nullptr)
@@ -36,10 +55,7 @@ XeroSingleItemWidget::DisplayType XeroSingleItemWidget::mapDataToDisplayType(std
 	case NT_UNASSIGNED:
 		break;
 	case NT_BOOLEAN:
-		if (display_ == DisplayType::ColorCircle || display_ == DisplayType::ColorSquare)
-			dtype = display_;
-		else
-			dtype = DisplayType::ColorCircle;
+		dtype = DisplayType::Color;
 		break;
 
 	case NT_DOUBLE:
@@ -54,7 +70,7 @@ XeroSingleItemWidget::DisplayType XeroSingleItemWidget::mapDataToDisplayType(std
 	case NT_RAW:
 		break;
 	case NT_BOOLEAN_ARRAY:
-		dtype = DisplayType::ColorSquareList;
+		dtype = DisplayType::ColorList;
 		break;
 	case NT_DOUBLE_ARRAY:
 		dtype = DisplayType::TextList;
@@ -104,15 +120,14 @@ void XeroSingleItemWidget::valueChanged()
 		{
 			auto tdisp = std::make_shared<TextDisplay>(this);
 			std::shared_ptr<QWidget> wid = std::dynamic_pointer_cast<QWidget>(tdisp);
-			tdisp->setGeometry(getSize(wid.get()));
-			tdisp->show();
+			setChild(tdisp);
 			data_display_ = tdisp;
 
 			r = geometry();
 			int width = r.width();
 			r.setLeft(initial_loc_.x());
 			r.setTop(initial_loc_.y());
-			r.setHeight(TitleHeight + tdisp->height());
+			r.setHeight(TitleHeight + tdisp->height() + 2 * TopBottomBorder);
 			r.setWidth(width);
 			setGeometry(r);
 		}
@@ -136,17 +151,25 @@ void XeroSingleItemWidget::valueChanged()
 		r.setHeight(TitleHeight + 48);
 		setGeometry(r);
 		break;
-	case DisplayType::ColorCircle:
-		r = geometry();
-		r.setHeight(TitleHeight + 48);
-		setGeometry(r);
+	case DisplayType::Color:
+		if (data_display_ == nullptr)
+		{
+			auto tdisp = std::make_shared<ColorDisplay>(this);
+			std::shared_ptr<QWidget> wid = std::dynamic_pointer_cast<QWidget>(tdisp);
+			setChild(tdisp);
+			data_display_ = tdisp;
+
+			r = geometry();
+			int width = r.width();
+			r.setLeft(initial_loc_.x());
+			r.setTop(initial_loc_.y());
+			r.setHeight(TitleHeight + tdisp->height() + 2 * TopBottomBorder);
+			r.setWidth(width);
+			setGeometry(r);
+		}
+		data_display_->setValue(value);
 		break;
-	case DisplayType::ColorSquare:
-		r = geometry();
-		r.setHeight(TitleHeight + 48);
-		setGeometry(r);
-		break;
-	case DisplayType::ColorSquareList:
+	case DisplayType::ColorList:
 		r = geometry();
 		r.setHeight(TitleHeight + 48);
 		setGeometry(r);

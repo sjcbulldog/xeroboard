@@ -116,10 +116,12 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ColorDisplay.cpp" />
     <ClCompile Include="IDataDisplay.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NetworkTableMonitor.cpp" />
     <ClCompile Include="SingleDataSource.cpp" />
+    <ClCompile Include="TabEditName.cpp" />
     <ClCompile Include="TextDisplay.cpp" />
     <ClCompile Include="TextListDisplay.cpp" />
     <ClCompile Include="xeroboard.cpp" />
@@ -137,11 +139,13 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <QtRcc Include="xeroboard.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ColorDisplay.h" />
     <ClInclude Include="build.h" />
     <ClInclude Include="IDataDisplay.h" />
     <ClInclude Include="NTEntryTracker.h" />
     <ClInclude Include="NetworkTableMonitor.h" />
     <QtMoc Include="SingleDataSource.h" />
+    <QtMoc Include="TabEditName.h" />
     <ClInclude Include="TextDisplay.h" />
     <ClInclude Include="TextListDisplay.h" />
     <ClInclude Include="XeroDisplayWidget.h" />

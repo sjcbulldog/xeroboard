@@ -64,6 +64,12 @@
     <ClCompile Include="TextListDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ColorDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TabEditName.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="xeroboard.h">
@@ -76,6 +82,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="SingleDataSource.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TabEditName.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -113,6 +122,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextListDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

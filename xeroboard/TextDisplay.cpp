@@ -4,6 +4,9 @@ TextDisplay::TextDisplay(QWidget* parent) : QLabel(parent)
 {
 	QFontMetrics m(font());
 	setMinimumHeight(m.lineSpacing());
+	setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+
+	autosize_font_ = true;
 }
 
 TextDisplay::~TextDisplay()
@@ -41,4 +44,14 @@ void TextDisplay::setValue(std::shared_ptr<nt::Value> value)
 
 	setText(txt);
 	setToolTip(txt);
+}
+
+void TextDisplay::resizeEvent(QResizeEvent* ev)
+{
+	if (autosize_font_)
+	{
+		QFont newfont(font());
+		newfont.setPixelSize(height());
+		setFont(newfont);
+	}
 }

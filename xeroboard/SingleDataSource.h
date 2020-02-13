@@ -21,6 +21,10 @@ public:
 		return name_;
 	}
 
+	bool isSubtable() {
+		return value_ == nullptr;
+	}
+
 signals:
 	void valueChanged();
 

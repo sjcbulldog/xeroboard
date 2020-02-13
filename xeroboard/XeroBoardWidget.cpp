@@ -59,9 +59,17 @@ void XeroBoardWidget::dropEvent(QDropEvent* ev)
 			}
 		}
 
-		XeroSingleItemWidget* item = new XeroSingleItemWidget(node.toStdString(), ev->pos(), this);
-		display_widgets_.push_back(item);
-		item->setVisible(true);
+		SingleDataSource* src = new SingleDataSource(node.toStdString());
+		if (src->isSubtable())
+		{
+			delete src;
+		}
+		else
+		{
+			XeroSingleItemWidget* item = new XeroSingleItemWidget(node.toStdString(), ev->pos(), this);
+			display_widgets_.push_back(item);
+			item->setVisible(true);
+		}
 	}
 	setBackgroundRole(QPalette::Background);
 }
@@ -96,4 +104,24 @@ void XeroBoardWidget::replaceSingleWithMulti(XeroDisplayWidget* w, const std::st
 		neww->setVisible(true);
 		return;
 	}
+}
+
+void XeroBoardWidget::selectWidget(XeroDisplayWidget* w, bool replace)
+{
+	if (replace)
+	{
+		for (auto* wd : selected_widgets_)
+			wd->setSelected(false);
+		selected_widgets_.clear();
+	}
+
+	w->setSelected(true);
+	selected_widgets_.push_back(w);
+}
+
+void XeroBoardWidget::mousePressEvent(QMouseEvent* ev)
+{
+	for (auto* wd : selected_widgets_)
+		wd->setSelected(false);
+	selected_widgets_.clear();
 }

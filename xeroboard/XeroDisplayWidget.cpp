@@ -66,6 +66,11 @@ void XeroDisplayWidget::mousePressEvent(QMouseEvent* ev)
 
 		XeroBoardWidget* board = parentBoard();
 		board->selectWidget(this, replace);
+
+		grabMouse();
+		board->startDragging(ev->screenPos());
+		mouse_mode_ = MouseMode::Dragging;
+
 		return;
 	}
 
@@ -108,23 +113,8 @@ void XeroDisplayWidget::mouseMoveEvent(QMouseEvent* ev)
 {
 	if (mouse_mode_ == MouseMode::Dragging)
 	{
-		double dx = ev->screenPos().x() - start_drag_point_.x();
-		double dy = ev->screenPos().y() - start_drag_point_.y();
-		int x = start_widget_geom_.topLeft().x() + dx;
-		int y = start_widget_geom_.topLeft().y() + dy;
-
-		QWidget* p = dynamic_cast<QWidget*>(parent());
-
-		if (x < 0)
-			x = 0;
-		else if (x + width() > p->width())
-			x = p->width() - width();
-		if (y < 0)
-			y = 0;
-		else if (y + height() > p->height())
-			y = p->height() - height();
-		QRect next(x, y, width(), height());
-		setGeometry(next);
+		auto board = parentBoard();
+		board->continueDragging(ev->screenPos());
 	}
 	else if (mouse_mode_ == MouseMode::ResizeLeft)
 	{
@@ -236,6 +226,11 @@ void XeroDisplayWidget::mouseMoveEvent(QMouseEvent* ev)
 
 void XeroDisplayWidget::mouseReleaseEvent(QMouseEvent* ev)
 {
+	if (mouse_mode_ == MouseMode::Dragging)
+	{
+		auto board = parentBoard();
+		board->endDragging();
+	}
 	mouse_mode_ = MouseMode::None;
 	releaseMouse();
 	setCursor(Qt::ArrowCursor);

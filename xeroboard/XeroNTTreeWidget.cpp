@@ -19,7 +19,8 @@ QMimeData* XeroNTTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 	QMimeData* data = QTreeWidget::mimeData(items);
 
 	QTreeWidgetItem* item = items[0];
-	QString text = item->text(0);
+	QString text("var:");
+	text += item->text(0);
 	item = item->parent();
 
 	while (item != nullptr)

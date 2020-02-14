@@ -21,19 +21,40 @@ XeroMultiItemWidget::~XeroMultiItemWidget()
 		delete s;
 
 	sources_.clear();
+
+	for (auto conn : connections_)
+		disconnect(conn);
+
+	connections_.clear();
 }
 
 void XeroMultiItemWidget::addSource(const std::string& name)
 {
 	auto src = new SingleDataSource(name);
-	sources_.push_back(src);
-	valueChanged();
+	addSource(src);
 }
 
 void XeroMultiItemWidget::addSource(SingleDataSource* src)
 {
 	sources_.push_back(src);
 	valueChanged();
+
+	auto conn = connect(src, &SingleDataSource::valueChanged, this, &XeroMultiItemWidget::valueChanged);
+	connections_.push_back(conn);
+
+	QSize size = display_->sizeHint();
+	QRect geom = geometry();
+
+	int width = size.width();
+	if (width < geom.width())
+		width = geom.width();
+
+	int height = size.height() + TitleHeight;
+	if (height < geom.height())
+		height = geom.height();
+
+	QRect newgeom(geom.left(), geom.top(), width, height);
+	setGeometry(newgeom);
 }
 
 void XeroMultiItemWidget::setOne(size_t index)

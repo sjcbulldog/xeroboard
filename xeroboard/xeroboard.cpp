@@ -18,13 +18,22 @@ xeroboard::xeroboard(QWidget *parent) : QMainWindow(parent)
 	if (settings_.contains(WindowStateSettings))
 		restoreState(settings_.value(WindowStateSettings).toByteArray());
 
+	if (settings_.contains(LeftSplitterSettings))
+	{
+		QList<QVariant> stored = settings_.value(LeftSplitterSettings).toList();
+		QList<int> sizes;
+		for (const QVariant& v : stored)
+			sizes.push_back(v.toInt());
+		left_right_splitter_->setSizes(sizes);
+	}
+
 	if (settings_.contains(TopSplitterSettings))
 	{
 		QList<QVariant> stored = settings_.value(TopSplitterSettings).toList();
 		QList<int> sizes;
 		for (const QVariant& v : stored)
 			sizes.push_back(v.toInt());
-		left_right_splitter_->setSizes(sizes);
+		top_bottom_splitter_->setSizes(sizes);
 	}
 
 	timer_ = new QTimer(this);
@@ -40,6 +49,11 @@ void xeroboard::closeEvent(QCloseEvent* event)
 	QList<QVariant> stored;
 	for (int size : left_right_splitter_->sizes())
 		stored.push_back(QVariant(size));
+	settings_.setValue(LeftSplitterSettings, stored);
+
+	stored.clear();
+	for (int size : top_bottom_splitter_->sizes())
+		stored.push_back(QVariant(size));
 	settings_.setValue(TopSplitterSettings, stored);
 }
 
@@ -47,14 +61,23 @@ void xeroboard::createWindows()
 {
 	left_right_splitter_ = new QSplitter();
 	left_right_splitter_->setOrientation(Qt::Orientation::Horizontal);
-	setCentralWidget(left_right_splitter_);
 
-	nt_tree_ = new XeroNTTreeWidget(left_right_splitter_);
-	nt_tree_->setColumnCount(1);
+	top_bottom_splitter_ = new QSplitter(left_right_splitter_);
+	top_bottom_splitter_->setOrientation(Qt::Orientation::Vertical);
+
+	nt_tree_ = new XeroNTTreeWidget(top_bottom_splitter_);
+	nt_tree_->setColumnCount(2);
 	nt_tree_->setDragEnabled(true);
 	nt_tree_->setDragDropMode(QAbstractItemView::DragOnly);
 	nt_tree_->setSelectionMode(QAbstractItemView::SingleSelection);
 	nt_tree_->setHeaderLabels({ "Name", "Value" });
+
+	plot_tree_ = new XeroPlotTreeWidget(top_bottom_splitter_);
+	plot_tree_->setColumnCount(1);
+	plot_tree_->setDragEnabled(true);
+	plot_tree_->setDragDropMode(QAbstractItemView::DragOnly);
+	plot_tree_->setSelectionMode(QAbstractItemView::SingleSelection);
+	plot_tree_->setHeaderLabels({ "Plot" });
 
 	tab_ = new QTabWidget(left_right_splitter_);
 	tab_->setTabsClosable(true);
@@ -63,6 +86,8 @@ void xeroboard::createWindows()
 	(void)connect(tab_->tabBar(), &QTabBar::tabBarDoubleClicked, this, &xeroboard::editTab);
 
 	newTab();
+
+	setCentralWidget(left_right_splitter_);
 }
 
 void xeroboard::createMenus()
@@ -71,17 +96,37 @@ void xeroboard::createMenus()
 
 	file_ = new QMenu(tr("&File"));
 	menuBar()->addMenu(file_);
-	file_->addAction(tr("New Layout"));
+	act = file_->addAction(tr("New Layout"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::newLayout);
+
 	file_->addAction(tr("Load Layout ..."));
 	file_->addAction(tr("Save Layout"));
 	file_->addAction(tr("Save Layout As .."));
 	file_->addSeparator();
 	file_->addAction(tr("Exit"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::exit);
 
 	view_ = new QMenu(tr("&View"));
 	menuBar()->addMenu(view_);
 	act = view_->addAction(tr("New Tab"));
 	(void)connect(act, &QAction::triggered, this, &xeroboard::newTab);
+
+	align_ = new QMenu(tr("&Align"));
+	menuBar()->addMenu(align_);
+	act = align_->addAction(tr("Left Edge"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::alignLeftEdge);
+	act = align_->addAction(tr("Right Edge"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::alignRightEdge);
+	act = align_->addAction(tr("Top Edge"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::alignTopEdge);
+	act = align_->addAction(tr("Bottom Edge"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::alignBottomEdge);
+	act = align_->addAction(tr("Horizontal Center"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::alignHorizontalCenter);
+	act = align_->addAction(tr("Vertical Center"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::alignVerticalCenter);
+	act = align_->addAction(tr("Make Same Size"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::makeSameSize);
 }
 
 void xeroboard::createStatusBar()
@@ -111,12 +156,44 @@ void xeroboard::timerProc()
 	{
 		top_ = monitor_->getCopy();
 		syncDisplay(nt_tree_, top_);
+		syncPlots(plot_tree_, top_);
+	}
+}
+
+bool xeroboard::treeHasTopLevelItem(QTreeWidget* tree, const QString& label)
+{
+	for (int i = 0; i < tree->topLevelItemCount(); i++)
+	{
+		if (tree->topLevelItem(i)->text(0) == label)
+			return true;
+	}
+
+	return false;
+}
+
+void xeroboard::syncPlots(QTreeWidget* tree, std::shared_ptr<NTEntryTracker> data)
+{
+	auto plotkey = data->getChild("XeroPlot");
+	if (plotkey != nullptr && plotkey->isSubTable())
+	{
+		for (const auto& entry : plotkey->getChildMap())
+		{
+			if (!treeHasTopLevelItem(tree, entry.first.c_str()))
+			{
+				QTreeWidgetItem* item = new QTreeWidgetItem();
+				item->setText(0, entry.first.c_str());
+				tree->addTopLevelItem(item);
+			}
+		}
 	}
 }
 
 void xeroboard::syncDisplay(QTreeWidget* tree, std::shared_ptr<NTEntryTracker> data)
 {
 	QTreeWidgetItem* topitem = nullptr;
+
+	if (tree == nullptr)
+		return;
 
 	if (tree->topLevelItemCount() == 0)
 	{
@@ -228,4 +305,77 @@ void xeroboard::editTabDone()
 void xeroboard::editTabAborted()
 {
 	editor_->setVisible(false);
+}
+
+void xeroboard::exit()
+{
+	close();
+}
+
+void xeroboard::newLayout()
+{
+
+}
+
+void xeroboard::saveLayout()
+{
+}
+
+void xeroboard::saveAsLayout()
+{
+
+}
+
+void xeroboard::loadLayout()
+{
+
+}
+
+void xeroboard::alignLeftEdge()
+{
+	XeroBoardWidget* board = dynamic_cast<XeroBoardWidget*>(tab_->currentWidget());
+	assert(board != nullptr);
+	board->alignLeftEdge();
+}
+
+void xeroboard::alignRightEdge()
+{
+	XeroBoardWidget* board = dynamic_cast<XeroBoardWidget*>(tab_->currentWidget());
+	assert(board != nullptr);
+	board->alignRightEdge();
+}
+
+void xeroboard::alignTopEdge()
+{
+	XeroBoardWidget* board = dynamic_cast<XeroBoardWidget*>(tab_->currentWidget());
+	assert(board != nullptr);
+	board->alignTopEdge();
+}
+
+void xeroboard::alignBottomEdge()
+{
+	XeroBoardWidget* board = dynamic_cast<XeroBoardWidget*>(tab_->currentWidget());
+	assert(board != nullptr);
+	board->alignBottomEdge();
+}
+
+void xeroboard::alignHorizontalCenter()
+{
+	XeroBoardWidget* board = dynamic_cast<XeroBoardWidget*>(tab_->currentWidget());
+	assert(board != nullptr);
+	board->alignHorizontalCenter();
+}
+
+void xeroboard::alignVerticalCenter()
+{
+	XeroBoardWidget* board = dynamic_cast<XeroBoardWidget*>(tab_->currentWidget());
+	assert(board != nullptr);
+	board->alignVerticalCenter();
+}
+
+void xeroboard::makeSameSize()
+{
+	XeroBoardWidget* board = dynamic_cast<XeroBoardWidget*>(tab_->currentWidget());
+	assert(board != nullptr);
+	board->makeSameSize();
 }

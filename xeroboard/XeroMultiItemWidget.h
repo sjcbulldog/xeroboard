@@ -20,6 +20,7 @@ private:
 
 private:
 	std::vector<SingleDataSource*> sources_;
+	std::vector<QMetaObject::Connection> connections_;
 	std::shared_ptr<QTreeWidget> display_;
 };
 

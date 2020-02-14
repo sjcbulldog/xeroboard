@@ -1,6 +1,7 @@
 #include "XeroSingleItemWidget.h"
 #include "TextDisplay.h"
 #include "ColorDisplay.h"
+#include "ArrayDisplay.h"
 #include <QLabel>
 #include <memory>
 
@@ -44,6 +45,8 @@ XeroSingleItemWidget::~XeroSingleItemWidget()
 {
 	if (source_ != nullptr)
 		delete source_;
+
+	disconnect(conn_);
 }
 
 XeroSingleItemWidget::DisplayType XeroSingleItemWidget::mapDataToDisplayType(std::shared_ptr<nt::Value> value)
@@ -70,7 +73,7 @@ XeroSingleItemWidget::DisplayType XeroSingleItemWidget::mapDataToDisplayType(std
 	case NT_RAW:
 		break;
 	case NT_BOOLEAN_ARRAY:
-		dtype = DisplayType::ColorList;
+		dtype = DisplayType::TextList;
 		break;
 	case NT_DOUBLE_ARRAY:
 		dtype = DisplayType::TextList;
@@ -136,10 +139,20 @@ void XeroSingleItemWidget::valueChanged()
 	case DisplayType::TextList:
 		if (data_display_ == nullptr)
 		{
+			auto tdisp = std::make_shared<ArrayDisplay>(this);
+			std::shared_ptr<QWidget> wid = std::dynamic_pointer_cast<QWidget>(tdisp);
+			setChild(tdisp);
+			data_display_ = tdisp;
+
 			r = geometry();
-			r.setHeight(TitleHeight + 48);
+			int width = r.width();
+			r.setLeft(initial_loc_.x());
+			r.setTop(initial_loc_.y());
+			r.setHeight(TitleHeight + tdisp->height() + 2 * TopBottomBorder);
+			r.setWidth(width);
 			setGeometry(r);
 		}
+		data_display_->setValue(value);
 		break;
 	case DisplayType::HorizontalBar:
 		r = geometry();

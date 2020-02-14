@@ -124,12 +124,14 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClCompile Include="TabEditName.cpp" />
     <ClCompile Include="TextDisplay.cpp" />
     <ClCompile Include="TextListDisplay.cpp" />
+    <ClCompile Include="ArrayDisplay.cpp" />
     <ClCompile Include="xeroboard.cpp" />
     <ClCompile Include="XeroBoardWidget.cpp" />
     <ClCompile Include="XeroDisplayWidget.cpp" />
     <ClCompile Include="XeroListWidget.cpp" />
     <ClCompile Include="XeroMultiItemWidget.cpp" />
     <ClCompile Include="XeroNTTreeWidget.cpp" />
+    <ClCompile Include="XeroPlotTreeWidget.cpp" />
     <ClCompile Include="XeroSingleItemWidget.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -148,9 +150,11 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <QtMoc Include="TabEditName.h" />
     <ClInclude Include="TextDisplay.h" />
     <ClInclude Include="TextListDisplay.h" />
+    <ClInclude Include="ArrayDisplay.h" />
     <ClInclude Include="XeroDisplayWidget.h" />
     <ClInclude Include="XeroMultiItemWidget.h" />
     <ClInclude Include="XeroNTTreeWidget.h" />
+    <ClInclude Include="XeroPlotTreeWidget.h" />
     <ClInclude Include="XeroSingleItemWidget.h" />
     <QtMoc Include="XeroListWidget.h" />
     <QtMoc Include="XeroBoardWidget.h" />

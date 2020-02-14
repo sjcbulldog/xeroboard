@@ -22,7 +22,7 @@ XeroDisplayWidget::~XeroDisplayWidget()
 XeroBoardWidget* XeroDisplayWidget::parentBoard()
 {
 	auto p = dynamic_cast<XeroBoardWidget*>(parent());
-	assert(p != nullpt);
+	assert(p != nullptr);
 	return p;
 }
 

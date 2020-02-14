@@ -23,6 +23,9 @@
       <Extensions>qrc;*</Extensions>
       <ParseFiles>false</ParseFiles>
     </Filter>
+    <Filter Include="Subsystems">
+      <UniqueIdentifier>{8cbe95e4-0830-4833-85a7-2705d3bb0b00}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -144,5 +147,15 @@
     <QtUic Include="XeroListWidget.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\tankdrive.png">
+      <Filter>Subsystems</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="images\tankdrive.json">
+      <Filter>Subsystems</Filter>
+    </Text>
   </ItemGroup>
 </Project>

@@ -1,5 +1,7 @@
 {
-  "name" :  "TankDrive",
+  "name": "TankDrive",
+  "image": "tankdrive.png",
+  "version" :  "1.0",
   "slots": [
     {
       "type": "text",

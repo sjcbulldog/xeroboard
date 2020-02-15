@@ -50,11 +50,11 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>msvc2017_64_5_13_1</QtInstall>
+    <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;gui;widgets</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QtInstall>msvc2017_64_5_13_1</QtInstall>
+    <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;gui;widgets</QtModules>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
@@ -82,7 +82,9 @@
       <Message>Incrementing the build number</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy $(ProjectDir)*.png $(OutDir)
+      <Command>mkdir $(OutDir)\images
+copy $(ProjectDir)images\*.png $(OutDir)\images
+copy $(ProjectDir)images\*.json $(OutDir)\images
 $(QTDIR)\bin\windeployqt $(OutDir)$(ProjectName).exe
 copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     </PostBuildEvent>
@@ -110,13 +112,17 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
       <Message>Incrementing the build number</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy $(ProjectDir)*.png $(OutDir)
+      <Command>mkdir $(OutDir)\images
+copy $(ProjectDir)images\*.png $(OutDir)\images
+copy $(ProjectDir)images\*.json $(OutDir)\images
 $(QTDIR)\bin\windeployqt $(OutDir)$(ProjectName).exe
 copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ColorDisplay.cpp" />
+    <ClCompile Include="CustomImage.cpp" />
+    <ClCompile Include="CustomImageMgr.cpp" />
     <ClCompile Include="IDataDisplay.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NetworkTableMonitor.cpp" />
@@ -143,6 +149,8 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
   <ItemGroup>
     <ClInclude Include="ColorDisplay.h" />
     <ClInclude Include="build.h" />
+    <ClInclude Include="CustomImage.h" />
+    <ClInclude Include="CustomImageMgr.h" />
     <ClInclude Include="IDataDisplay.h" />
     <ClInclude Include="NTEntryTracker.h" />
     <ClInclude Include="NetworkTableMonitor.h" />

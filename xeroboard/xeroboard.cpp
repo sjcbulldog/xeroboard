@@ -7,6 +7,8 @@
 
 xeroboard::xeroboard(QWidget *parent) : QMainWindow(parent)
 {
+	image_mgr_.init();
+
 	monitor_ = new NetworkTableMonitor();
 	createWindows();
 	createMenus();
@@ -35,6 +37,8 @@ xeroboard::xeroboard(QWidget *parent) : QMainWindow(parent)
 			sizes.push_back(v.toInt());
 		top_bottom_splitter_->setSizes(sizes);
 	}
+
+
 
 	timer_ = new QTimer(this);
 	(void)connect(timer_, &QTimer::timeout, this, &xeroboard::timerProc);
@@ -106,6 +110,20 @@ void xeroboard::createMenus()
 	file_->addAction(tr("Exit"));
 	(void)connect(act, &QAction::triggered, this, &xeroboard::exit);
 
+	edit_ = new QMenu(tr("&Edit"));
+	menuBar()->addMenu(edit_);
+	act = edit_->addAction(tr("Delete"));
+	(void)connect(act, &QAction::triggered, this, &xeroboard::editDelete);
+	
+	if (image_mgr_.count() > 0)
+	{
+		QMenu *menu = edit_->addMenu("&Create");
+		for (const QString& im : image_mgr_.imageNames())
+		{
+			menu->addAction(im);
+		}
+	}
+
 	view_ = new QMenu(tr("&View"));
 	menuBar()->addMenu(view_);
 	act = view_->addAction(tr("New Tab"));
@@ -131,6 +149,11 @@ void xeroboard::createMenus()
 
 void xeroboard::createStatusBar()
 {
+}
+
+void xeroboard::editDelete()
+{
+
 }
 
 void xeroboard::newTab()

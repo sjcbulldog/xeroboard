@@ -6,6 +6,7 @@
 #include "XeroNTTreeWidget.h"
 #include "XeroPlotTreeWidget.h"
 #include "TabEditName.h"
+#include "CustomImageMgr.h"
 #include <QMainWindow>
 #include <QSplitter>
 #include <QTreeWidget>
@@ -54,6 +55,9 @@ private:
 	void alignVerticalCenter();
 	void makeSameSize();
 
+	void editDelete();
+	void editCreateImage();
+
 	bool treeHasTopLevelItem(QTreeWidget *tree, const QString& str);
 
 private:
@@ -77,8 +81,10 @@ private:
 	int which_tab_;
 	std::map<int, XeroBoardWidget *> containers_;
 	TabEditName* editor_;
+	CustomImageMgr image_mgr_;
 
 	QMenu* file_;
+	QMenu* edit_;
 	QMenu* view_;
 	QMenu* align_;
 	QMenu* help_;

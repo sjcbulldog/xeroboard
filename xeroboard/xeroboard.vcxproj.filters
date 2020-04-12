@@ -31,9 +31,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xeroboard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="XeroBoardWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -85,11 +82,11 @@
     <ClCompile Include="CustomImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="XeroBoardMainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="xeroboard.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="XeroBoardWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -100,6 +97,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="TabEditName.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="XeroBoardMainWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -169,5 +169,6 @@
     <Text Include="images\tankdrive.json">
       <Filter>Subsystems</Filter>
     </Text>
+    <Text Include="TODO.txt" />
   </ItemGroup>
 </Project>

@@ -3,6 +3,7 @@
 #include "ColorDisplay.h"
 #include "ArrayDisplay.h"
 #include <QLabel>
+#include <QJsonObject>
 #include <memory>
 
 XeroSingleItemWidget::XeroSingleItemWidget(const std::string &name, QPoint loc, QWidget* parent) : XeroDisplayWidget(parent)
@@ -188,4 +189,48 @@ void XeroSingleItemWidget::valueChanged()
 		setGeometry(r);
 		break;
 	}
+}
+
+QString XeroSingleItemWidget::toString(DisplayType dtype)
+{
+	QString result;
+
+	switch (dtype)
+	{
+	case DisplayType::None:
+		break;
+
+	case DisplayType::Text:
+		result = "text";
+		break;
+
+	case DisplayType::TextList:
+		result = "textlist";
+		break;
+
+	case DisplayType::HorizontalBar:
+		result = "horizontalbar";
+		break;
+
+	case DisplayType::VerticalBar:
+		result = "verticalbar";
+		break;
+
+	case DisplayType::Color:
+		result = "color";
+		break;
+
+	case DisplayType::ColorList:
+		result = "colorlist";
+		break;
+	}
+
+	return result;
+}
+
+void XeroSingleItemWidget::createJSON(QJsonObject& obj)
+{
+	obj["title"] = title();
+	obj["source"] = source_->name();
+	obj["display"] = toString(display_);
 }

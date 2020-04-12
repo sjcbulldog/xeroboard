@@ -38,6 +38,11 @@ NetworkTableMonitor::~NetworkTableMonitor()
 {
 }
 
+bool NetworkTableMonitor::isConnected() 
+{
+	return inst_.IsConnected();
+}
+
 std::string NetworkTableMonitor::toString(const nt::Value& v)
 {
 	std::string ret = "UnknownType";

@@ -11,8 +11,10 @@ public:
 	XeroMultiItemWidget(QRect r, QWidget* parent);
 	virtual ~XeroMultiItemWidget();
 
-	void addSource(const std::string &name);
-	void addSource(SingleDataSource* src);
+	void addSource(const std::string &name, bool resize);
+	void addSource(SingleDataSource* src, bool resize);
+
+	void createJSON(QJsonObject& obj);
 
 private:
 	void valueChanged();

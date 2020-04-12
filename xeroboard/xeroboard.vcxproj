@@ -131,7 +131,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClCompile Include="TextDisplay.cpp" />
     <ClCompile Include="TextListDisplay.cpp" />
     <ClCompile Include="ArrayDisplay.cpp" />
-    <ClCompile Include="xeroboard.cpp" />
+    <ClCompile Include="XeroBoardMainWindow.cpp" />
     <ClCompile Include="XeroBoardWidget.cpp" />
     <ClCompile Include="XeroDisplayWidget.cpp" />
     <ClCompile Include="XeroListWidget.cpp" />
@@ -141,7 +141,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClCompile Include="XeroSingleItemWidget.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="xeroboard.h" />
+    <QtMoc Include="XeroBoardMainWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="xeroboard.qrc" />
@@ -175,6 +175,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
   </ItemGroup>
   <ItemGroup>
     <Text Include="images\tankdrive.json" />
+    <Text Include="TODO.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

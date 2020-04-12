@@ -4,7 +4,7 @@ SingleDataSource::SingleDataSource(const std::string& name)
 {
 	name_ = name.c_str();
 
-	unsigned int flags = NT_NOTIFY_DELETE | NT_NOTIFY_UPDATE;
+	unsigned int flags = NT_NOTIFY_DELETE | NT_NOTIFY_UPDATE | NT_NOTIFY_FLAGS;
 	nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
 	std::function<void(const nt::EntryNotification & ev)> cb = std::bind(&SingleDataSource::tableChangedEvent, this, std::placeholders::_1);
 	listener_ = inst.AddEntryListener(name, cb, flags);

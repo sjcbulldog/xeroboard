@@ -1,4 +1,4 @@
-#include "xeroboard.h"
+#include "XeroBoardMainWindow.h"
 #include <QtWidgets/QApplication>
 
 int main(int argc, char *argv[])
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 	QApplication a(argc, argv);
 	qRegisterMetaType<QVector<int> >("QVector<int>");
 
-	xeroboard w;
+	XeroBoardMainWindow w;
 	w.show();
 	return a.exec();
 }

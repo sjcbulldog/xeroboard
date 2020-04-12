@@ -25,6 +25,20 @@ public:
 		return selected_;
 	}
 
+	void setEnabled(bool b) {
+		if (b != enabled_)
+		{
+			enabled_ = b;
+			repaint();
+		}
+	}
+
+	bool enabled() {
+		return enabled_;
+	}
+
+	virtual void createJSON(QJsonObject& obj) = 0;
+
 protected:
 	virtual void closeEvent(QCloseEvent* ev);
 	virtual void paintEvent(QPaintEvent* ev);
@@ -34,6 +48,7 @@ protected:
 	virtual void resizeEvent(QResizeEvent* ev);
 
 	virtual void setTitle(const QString& str) { title_ = str; }
+	virtual QString title() { return title_;  }
 	virtual void setChild(std::shared_ptr<QWidget> child);
 
 	QRect getClientArea();
@@ -79,5 +94,6 @@ private:
 	QPointF start_drag_point_;
 	QRect start_widget_geom_;
 	std::shared_ptr<QWidget> child_;
+	bool enabled_;
 	bool selected_;
 };

@@ -19,7 +19,7 @@ QMimeData* XeroNTTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 	QMimeData* data = QTreeWidget::mimeData(items);
 
 	QTreeWidgetItem* item = items[0];
-	QString text("var:");
+	QString text;
 	text += item->text(0);
 	item = item->parent();
 
@@ -33,6 +33,7 @@ QMimeData* XeroNTTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 		item = item->parent();
 	}
 
+	text = "var:" + text;
 	QByteArray dbytes = text.toUtf8();
 	data->setData("application/x-text", dbytes);
 	return data;

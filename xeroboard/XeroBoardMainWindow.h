@@ -12,14 +12,16 @@
 #include <QTreeWidget>
 #include <QTimer>
 #include <QSettings>
+#include <QStatusBar>
+#include <QLabel>
 #include <memory>
 
-class xeroboard : public QMainWindow
+class XeroBoardMainWindow : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	xeroboard(QWidget *parent = Q_NULLPTR);
+	XeroBoardMainWindow(QWidget *parent = Q_NULLPTR);
 
 protected:
 	void closeEvent(QCloseEvent* ev);
@@ -56,36 +58,42 @@ private:
 	void makeSameSize();
 
 	void editDelete();
-	void editCreateImage();
 
 	bool treeHasTopLevelItem(QTreeWidget *tree, const QString& str);
+
+	void save();
+	void createJSONForBoards(QJsonArray& doc);
 
 private:
 	static constexpr const char* GeometrySettings = "geometry";
 	static constexpr const char* WindowStateSettings = "windowstate";
-	static constexpr const char* TopSplitterSettings = "topsplitter";
 	static constexpr const char* LeftSplitterSettings = "leftsplitter";
 	static constexpr const char* ContainerPropName = "which";
 
 private:
 	QSplitter* left_right_splitter_;
-	QSplitter* top_bottom_splitter_;
 	XeroNTTreeWidget* nt_tree_;
 	XeroPlotTreeWidget *plot_tree_;
-	QTabWidget* tab_;
+	QTabWidget* board_tab_;
+	QTabWidget* select_tab_;
 	NetworkTableMonitor* monitor_;
 	std::shared_ptr<NTEntryTracker> top_;
 	QTimer* timer_;
 	QSettings settings_;
-	int count_;
 	int which_tab_;
+	int count_;
 	std::map<int, XeroBoardWidget *> containers_;
 	TabEditName* editor_;
 	CustomImageMgr image_mgr_;
+	QLabel* status_text_;
+	bool connected_;
+	QString filename_;
 
 	QMenu* file_;
 	QMenu* edit_;
 	QMenu* view_;
 	QMenu* align_;
 	QMenu* help_;
+
+	bool dirty_;
 };

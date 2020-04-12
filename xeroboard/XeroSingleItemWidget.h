@@ -19,6 +19,8 @@ public:
 		return ret;
 	}
 
+	void createJSON(QJsonObject& obj);
+
 private:
 	enum class DisplayType
 	{
@@ -36,6 +38,7 @@ private:
 	DisplayType mapDataToDisplayType(std::shared_ptr<nt::Value> value);
 
 	QRect getSize(QWidget *display);
+	QString toString(DisplayType dtype);
 
 private:
 	std::shared_ptr<IDataDisplay> data_display_;

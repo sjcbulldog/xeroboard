@@ -1,6 +1,8 @@
 #include "XeroMultiItemWidget.h"
 #include <QTreeWidget>
 #include <QLabel>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <memory>
 
 XeroMultiItemWidget::XeroMultiItemWidget(QRect r, QWidget* parent) : XeroDisplayWidget(parent)
@@ -28,13 +30,13 @@ XeroMultiItemWidget::~XeroMultiItemWidget()
 	connections_.clear();
 }
 
-void XeroMultiItemWidget::addSource(const std::string& name)
+void XeroMultiItemWidget::addSource(const std::string& name, bool resize)
 {
 	auto src = new SingleDataSource(name);
-	addSource(src);
+	addSource(src, resize);
 }
 
-void XeroMultiItemWidget::addSource(SingleDataSource* src)
+void XeroMultiItemWidget::addSource(SingleDataSource* src, bool resize)
 {
 	sources_.push_back(src);
 	valueChanged();
@@ -42,19 +44,21 @@ void XeroMultiItemWidget::addSource(SingleDataSource* src)
 	auto conn = connect(src, &SingleDataSource::valueChanged, this, &XeroMultiItemWidget::valueChanged);
 	connections_.push_back(conn);
 
-	QSize size = display_->sizeHint();
-	QRect geom = geometry();
+	if (resize) {
+		QSize size = display_->sizeHint();
+		QRect geom = geometry();
 
-	int width = size.width();
-	if (width < geom.width())
-		width = geom.width();
+		int width = size.width();
+		if (width < geom.width())
+			width = geom.width();
 
-	int height = size.height() + TitleHeight;
-	if (height < geom.height())
-		height = geom.height();
+		int height = size.height() + TitleHeight;
+		if (height < geom.height())
+			height = geom.height();
 
-	QRect newgeom(geom.left(), geom.top(), width, height);
-	setGeometry(newgeom);
+		QRect newgeom(geom.left(), geom.top(), width, height);
+		setGeometry(newgeom);
+	}
 }
 
 void XeroMultiItemWidget::setOne(size_t index)
@@ -117,4 +121,14 @@ void XeroMultiItemWidget::valueChanged()
 {
 	for (size_t i = 0; i < sources_.size(); i++)
 		setOne(i);
+}
+
+void XeroMultiItemWidget::createJSON(QJsonObject& obj)
+{
+	QJsonArray arr;
+
+	obj["title"] = title();
+	for (SingleDataSource *src : sources_)
+		arr.push_back(src->name());
+	obj["sources"] = arr;
 }

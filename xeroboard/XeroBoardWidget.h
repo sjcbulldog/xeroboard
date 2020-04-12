@@ -28,6 +28,22 @@ public:
 	void alignVerticalCenter();
 	void makeSameSize();
 
+	void setEnabled(bool b);
+
+	bool enabled() {
+		return enabled_;
+	}
+
+	QString title() {
+		return title_;
+	}
+
+	void setTitle(const QString& t) {
+		title_ = t;
+	}
+
+	void createJSON(QJsonObject& obj);
+
 protected:
 	virtual void dragEnterEvent(QDragEnterEvent* ev);
 	virtual void dragMoveEvent(QDragMoveEvent* ev);
@@ -47,4 +63,6 @@ private:
 	std::list<XeroDisplayWidget*> display_widgets_;
 	std::vector<XeroDisplayWidget*> selected_widgets_;
 	QPointF drag_start_;
+	QString title_;
+	bool enabled_;
 };

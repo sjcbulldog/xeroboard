@@ -8,6 +8,9 @@
 #include <QMimeData>
 #include <QPainter>
 #include <QDebug>
+#include <QMessageBox>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <algorithm>
 #include <cassert>
 
@@ -19,6 +22,14 @@ XeroBoardWidget::XeroBoardWidget(QWidget *parent) : QWidget(parent)
 
 XeroBoardWidget::~XeroBoardWidget()
 {
+}
+
+void XeroBoardWidget::setEnabled(bool b)
+{
+	enabled_ = b;
+
+	for (auto w : display_widgets_)
+		w->setEnabled(b);
 }
 
 void XeroBoardWidget::dragEnterEvent(QDragEnterEvent* ev)
@@ -56,6 +67,7 @@ void XeroBoardWidget::dropVariable(QString node, QPoint pt)
 	SingleDataSource* src = new SingleDataSource(node.toStdString());
 	if (src->isSubtable())
 	{
+		QMessageBox::warning(this, "Error", "Cannot display complete table, select a single value.");
 		delete src;
 	}
 	else
@@ -84,8 +96,6 @@ void XeroBoardWidget::dropEvent(QDropEvent* ev)
 			dropVariable(node.mid(4), ev->pos());
 		else if (node.length() > 4 && node.mid(0, 5) == "plot:")
 			dropPlot(node.mid(5), ev->pos());
-
-
 	}
 	setBackgroundRole(QPalette::Background);
 }
@@ -103,22 +113,22 @@ void XeroBoardWidget::replaceSingleWithMulti(XeroDisplayWidget* w, const std::st
 	auto multi = dynamic_cast<XeroMultiItemWidget *>(w);
 	if (multi != nullptr)
 	{
-		multi->addSource(newnode);
-		return;
+		multi->addSource(newnode, false);
 	}
-
-	auto single = dynamic_cast<XeroSingleItemWidget*>(w);
-	if (single != nullptr)
+	else 
 	{
-		QRect r = w->geometry();
-		XeroMultiItemWidget* neww = new XeroMultiItemWidget(r, this);
-		neww->addSource(single->takeSource());
-		single->close();
+		auto single = dynamic_cast<XeroSingleItemWidget*>(w);
+		if (single != nullptr)
+		{
+			QRect r = w->geometry();
+			XeroMultiItemWidget* neww = new XeroMultiItemWidget(r, this);
+			neww->addSource(single->takeSource(), false);
+			single->close();
 
-		neww->addSource(newnode);
-		display_widgets_.push_back(neww);
-		neww->setVisible(true);
-		return;
+			neww->addSource(newnode, true);
+			display_widgets_.push_back(neww);
+			neww->setVisible(true);
+		}
 	}
 }
 
@@ -313,4 +323,30 @@ void XeroBoardWidget::keyPressEvent(QKeyEvent* ev)
 			}
 			break;
 	}
+}
+
+void XeroBoardWidget::createJSON(QJsonObject& obj)
+{
+	QJsonArray arr;
+
+	for (auto item : display_widgets_) {
+		QJsonObject itemobj;
+		QRect geom = item->geometry();
+		QJsonObject geomobj;
+
+		geomobj["x"] = geom.x();
+		geomobj["y"] = geom.y();
+		geomobj["width"] = geom.width();
+		geomobj["height"] = geom.height();
+		itemobj["geometry"] = geomobj;
+
+		QJsonObject child;
+		item->createJSON(child);
+		itemobj["child"] = child;
+
+		arr.push_back(itemobj);
+	}
+
+	obj["items"] = arr;
+	obj["title"] = title_;
 }

@@ -17,10 +17,12 @@ public:
 
 	std::shared_ptr<NTEntryTracker> getCopy() ;
 	bool isDirty() { return dirty_; }
+	bool isConnected();
 
 	static std::string toString(const nt::Value &v);
 
 private:
+	void connectionChangedListener(const nt::ConnectionNotification& ev);
 	void tableChangedEvent(const nt::EntryNotification& ev);
 	void addEntry(const std::string& name, const std::shared_ptr<nt::Value> value);
 	void deleteEntry(const std::string& name);
@@ -38,4 +40,5 @@ private:
 	std::mutex db_lock_;
 	std::shared_ptr<NTEntryTracker> top_;
 	bool dirty_;
+	bool connected_;
 };

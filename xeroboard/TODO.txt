@@ -1,0 +1,5 @@
+Select multiple widgets and move together
+Image/JSON based subsystem pictures
+Plots
+Detect when the network table disappears and indicate visually
+Right click menu on widgets

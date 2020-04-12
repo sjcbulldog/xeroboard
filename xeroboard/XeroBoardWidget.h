@@ -5,14 +5,18 @@
 #include <list>
 #include <vector>
 
+class XeroBoardMainWindow;
+
 class XeroBoardWidget : public QWidget
 {
 	friend class XeroDisplayWidget;
 	Q_OBJECT
 
 public:
-	XeroBoardWidget(QWidget *parent = Q_NULLPTR);
+	XeroBoardWidget(XeroBoardMainWindow* main, QWidget* parent = Q_NULLPTR);
 	~XeroBoardWidget();
+
+	void init(const QJsonObject& obj);
 
 	void selectWidget(XeroDisplayWidget* wid, bool replace);
 
@@ -58,6 +62,10 @@ protected:
 private:
 	void dropVariable(QString node, QPoint pt);
 	void dropPlot(QString node, QPoint pt);
+	void createWidget(const QJsonObject &obj);
+	QRect parseGeometry(const QJsonObject& obj);
+	void createSingle(const QJsonObject& desc, const QRect& geom);
+	void createMultiple(const QJsonObject& desc, const QRect& geom);
 
 private:
 	std::list<XeroDisplayWidget*> display_widgets_;
@@ -65,4 +73,5 @@ private:
 	QPointF drag_start_;
 	QString title_;
 	bool enabled_;
+	XeroBoardMainWindow* main_;
 };

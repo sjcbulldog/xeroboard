@@ -13,6 +13,8 @@ XeroDisplayWidget::XeroDisplayWidget(QWidget* parent) : QWidget(parent, Qt::Widg
 	mouse_mode_ = MouseMode::None;
 	mouse_cursor_ = MouseCursor::Arrow;
 	selected_ = false;
+	enabled_ = false;
+	title_editor_ = nullptr;
 }
 
 XeroDisplayWidget::~XeroDisplayWidget()
@@ -49,6 +51,36 @@ void XeroDisplayWidget::closeEvent(QCloseEvent* ev)
 	board->removeChild(this);
 }
 
+void XeroDisplayWidget::mouseDoubleClickEvent(QMouseEvent* ev)
+{
+	if (title_editor_ == nullptr)
+		title_editor_ = new TabEditName(this);
+
+	QRect r = getTitleBarArea();
+	title_editor_->setGeometry(r);
+	title_editor_->setText(title_);
+	title_editor_->show();
+	title_editor_->setFocus();
+
+	(void)connect(title_editor_, &TabEditName::returnPressed, this, &XeroDisplayWidget::editTabDone);
+	(void)connect(title_editor_, &TabEditName::escapePressed, this, &XeroDisplayWidget::editTabAborted);
+}
+
+void XeroDisplayWidget::editTabDone()
+{
+	title_ = title_editor_->text();
+	repaint();
+
+	title_editor_->hide();
+	title_editor_->setDisabled(true);
+}
+
+void XeroDisplayWidget::editTabAborted()
+{
+	delete title_editor_;
+	title_editor_ = nullptr;
+}
+
 void XeroDisplayWidget::mousePressEvent(QMouseEvent* ev)
 {
 	if (getCloseRectArea().contains(ev->pos()))
@@ -70,42 +102,42 @@ void XeroDisplayWidget::mousePressEvent(QMouseEvent* ev)
 		grabMouse();
 		board->startDragging(ev->screenPos());
 		mouse_mode_ = MouseMode::Dragging;
-
-		return;
 	}
-
-	switch (mouse_cursor_)
+	else
 	{
-	case MouseCursor::ResizeLeft:
-		grabMouse();
-		mouse_mode_ = MouseMode::ResizeLeft;
-		start_drag_point_ = ev->screenPos();
-		start_widget_geom_ = geometry();
-		break;
-	case MouseCursor::ResizeRight:
-		grabMouse();
-		mouse_mode_ = MouseMode::ResizeRight;
-		start_drag_point_ = ev->screenPos();
-		start_widget_geom_ = geometry();
-		break;
-	case MouseCursor::ResizeLLCorner:
-		grabMouse();
-		mouse_mode_ = MouseMode::ResizeLLCorner;
-		start_drag_point_ = ev->screenPos();
-		start_widget_geom_ = geometry();
-		break;
-	case MouseCursor::ResizeLRCorner:
-		grabMouse();
-		mouse_mode_ = MouseMode::ResizeLRCorner;
-		start_drag_point_ = ev->screenPos();
-		start_widget_geom_ = geometry();
-		break;
-	case MouseCursor::ResizeBottom:
-		grabMouse();
-		mouse_mode_ = MouseMode::ResizeBottom;
-		start_drag_point_ = ev->screenPos();
-		start_widget_geom_ = geometry();
-		break;
+		switch (mouse_cursor_)
+		{
+		case MouseCursor::ResizeLeft:
+			grabMouse();
+			mouse_mode_ = MouseMode::ResizeLeft;
+			start_drag_point_ = ev->screenPos();
+			start_widget_geom_ = geometry();
+			break;
+		case MouseCursor::ResizeRight:
+			grabMouse();
+			mouse_mode_ = MouseMode::ResizeRight;
+			start_drag_point_ = ev->screenPos();
+			start_widget_geom_ = geometry();
+			break;
+		case MouseCursor::ResizeLLCorner:
+			grabMouse();
+			mouse_mode_ = MouseMode::ResizeLLCorner;
+			start_drag_point_ = ev->screenPos();
+			start_widget_geom_ = geometry();
+			break;
+		case MouseCursor::ResizeLRCorner:
+			grabMouse();
+			mouse_mode_ = MouseMode::ResizeLRCorner;
+			start_drag_point_ = ev->screenPos();
+			start_widget_geom_ = geometry();
+			break;
+		case MouseCursor::ResizeBottom:
+			grabMouse();
+			mouse_mode_ = MouseMode::ResizeBottom;
+			start_drag_point_ = ev->screenPos();
+			start_widget_geom_ = geometry();
+			break;
+		}
 	}
 }
 

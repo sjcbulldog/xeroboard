@@ -1,6 +1,7 @@
 #include "XeroBoardWidget.h"
 #include "XeroSingleItemWidget.h"
 #include "XeroMultiItemWidget.h"
+#include "XeroBoardMainWindow.h"
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <QDragMoveEvent>
@@ -14,14 +15,141 @@
 #include <algorithm>
 #include <cassert>
 
-XeroBoardWidget::XeroBoardWidget(QWidget *parent) : QWidget(parent)
+XeroBoardWidget::XeroBoardWidget(XeroBoardMainWindow* main, QWidget *parent) : QWidget(parent)
 {
 	setAcceptDrops(true);
 	setFocusPolicy(Qt::ClickFocus);
+	main_ = main;
+	enabled_ = false;
 }
 
 XeroBoardWidget::~XeroBoardWidget()
 {
+}
+
+QRect XeroBoardWidget::parseGeometry(const QJsonObject& obj)
+{
+	if (!obj.contains("x") || !obj["x"].isDouble()) 
+	{
+		std::runtime_error err("geometry does not contain 'x' member that is a number");
+		throw err;
+	}
+
+	if (!obj.contains("y") || !obj["y"].isDouble()) 
+	{
+		std::runtime_error err("geometry does not contain 'y' member that is a number");
+		throw err;
+	}
+
+	if (!obj.contains("width") || !obj["width"].isDouble()) 
+	{
+		std::runtime_error err("geometry does not contain 'width' member that is a number");
+		throw err;
+	}
+
+	if (!obj.contains("height") || !obj["height"].isDouble()) 
+	{
+		std::runtime_error err("geometry does not contain 'height' member that is a number");
+		throw err;
+	}
+
+	double x = obj["x"].toDouble();
+	double y = obj["y"].toDouble();
+	double width = obj["width"].toDouble();
+	double height = obj["height"].toDouble();
+
+	return QRect(x, y, width, height);
+}
+
+void XeroBoardWidget::createWidget(const QJsonObject& obj)
+{
+	if (!obj.contains("geometry") || !obj["geometry"].isObject())
+	{
+		std::runtime_error err("item descriptor does not contain valid 'geometry' member");
+		throw err;
+	}
+
+	if (!obj.contains("child") || !obj["child"].isObject())
+	{
+		std::runtime_error err("item descriptor does not contain valid 'child' member");
+		throw err;
+	}
+
+	QRect r = parseGeometry(obj["geometry"].toObject());
+
+	QJsonObject child = obj["child"].toObject();
+	if (!child.contains("type") || !child["type"].isString())
+	{
+		std::runtime_error err("item child descriptor does not contain valid 'type' member");
+		throw err;
+	}
+
+	QString type = child["type"].toString();
+
+	if (type == "single")
+		createSingle(child, r);
+	else if (type == "multiple")
+		createMultiple(child, r);
+}
+
+void XeroBoardWidget::createSingle(const QJsonObject& desc, const QRect& r)
+{
+	if (!desc.contains("source") || !desc["source"].isString())
+	{
+		std::runtime_error err("item single child descriptor does not contain valid 'source' member");
+		throw err;
+	}
+	QString source = desc["source"].toString();
+
+	XeroSingleItemWidget* item = new XeroSingleItemWidget(source.toStdString(), r.topLeft(), this);
+	item->setGeometry(r);
+	display_widgets_.push_back(item);
+	item->setVisible(true);
+}
+
+void XeroBoardWidget::createMultiple(const QJsonObject& desc, const QRect& r)
+{
+	if (!desc.contains("sources") || !desc["sources"].isArray())
+	{
+		std::runtime_error err("item single child descriptor does not contain valid 'sources' member");
+		throw err;
+	}
+	QJsonArray sources = desc["sources"].toArray();
+	XeroMultiItemWidget *item = new XeroMultiItemWidget(r, this);
+
+	for (int i = 0; i < sources.size(); i++) {
+		if (sources[i].isString())
+			item->addSource(sources[i].toString().toStdString(), false);
+	}
+
+	item->setGeometry(r);
+	display_widgets_.push_back(item);
+	item->setVisible(true);
+}
+
+void XeroBoardWidget::init(const QJsonObject& obj)
+{
+	if (!obj.contains("items")) 
+	{
+		std::runtime_error err("tab JSON object does not contain items array");
+		throw err;
+	}
+
+	if (!obj["items"].isArray())
+	{
+		std::runtime_error err("tab JSON object does not contain items array");
+		throw err;
+	}
+
+	QJsonArray items = obj["items"].toArray();
+
+	for (int i = 0; i < items.size(); i++) {
+		if (!items[i].isObject())
+			continue;
+
+		QJsonObject obj = items[i].toObject();
+		createWidget(obj);
+	}
 }
 
 void XeroBoardWidget::setEnabled(bool b)
@@ -75,6 +203,7 @@ void XeroBoardWidget::dropVariable(QString node, QPoint pt)
 		XeroSingleItemWidget* item = new XeroSingleItemWidget(node.toStdString(), pt, this);
 		display_widgets_.push_back(item);
 		item->setVisible(true);
+		main_->setDirty(true);
 	}
 }
 
@@ -130,6 +259,7 @@ void XeroBoardWidget::replaceSingleWithMulti(XeroDisplayWidget* w, const std::st
 			neww->setVisible(true);
 		}
 	}
+	main_->setDirty(true);
 }
 
 void XeroBoardWidget::selectWidget(XeroDisplayWidget* w, bool replace)

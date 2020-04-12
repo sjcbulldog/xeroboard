@@ -131,4 +131,5 @@ void XeroMultiItemWidget::createJSON(QJsonObject& obj)
 	for (SingleDataSource *src : sources_)
 		arr.push_back(src->name());
 	obj["sources"] = arr;
+	obj["type"] = "multiple";
 }

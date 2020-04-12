@@ -1,6 +1,7 @@
 #include "XeroSingleItemWidget.h"
 #include "TextDisplay.h"
 #include "ColorDisplay.h"
+#include "ColorListDisplay.h"
 #include "ArrayDisplay.h"
 #include <QLabel>
 #include <QJsonObject>
@@ -74,7 +75,7 @@ XeroSingleItemWidget::DisplayType XeroSingleItemWidget::mapDataToDisplayType(std
 	case NT_RAW:
 		break;
 	case NT_BOOLEAN_ARRAY:
-		dtype = DisplayType::TextList;
+		dtype = DisplayType::ColorList;
 		break;
 	case NT_DOUBLE_ARRAY:
 		dtype = DisplayType::TextList;
@@ -184,9 +185,23 @@ void XeroSingleItemWidget::valueChanged()
 		data_display_->setValue(value);
 		break;
 	case DisplayType::ColorList:
-		r = geometry();
-		r.setHeight(TitleHeight + 48);
-		setGeometry(r);
+		if (data_display_ == nullptr)
+		{
+			auto tdisp = std::make_shared<ColorListDisplay>(this);
+			std::shared_ptr<QWidget> wid = std::dynamic_pointer_cast<QWidget>(tdisp);
+			setChild(tdisp);
+			data_display_ = tdisp;
+
+			r = geometry();
+			int width = r.width();
+			r.setLeft(initial_loc_.x());
+			r.setTop(initial_loc_.y());
+			r.setHeight(TitleHeight + tdisp->height() + 2 * TopBottomBorder);
+			r.setWidth(width);
+			setGeometry(r);
+		}
+		data_display_->setValue(value);
+
 		break;
 	}
 }
@@ -233,4 +248,5 @@ void XeroSingleItemWidget::createJSON(QJsonObject& obj)
 	obj["title"] = title();
 	obj["source"] = source_->name();
 	obj["display"] = toString(display_);
+	obj["type"] = "single";
 }

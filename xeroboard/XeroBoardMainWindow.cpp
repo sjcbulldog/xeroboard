@@ -40,6 +40,7 @@ XeroBoardMainWindow::XeroBoardMainWindow(QWidget *parent) : QMainWindow(parent)
 	timer_->start(100);
 
 	connected_ = false;
+	editor_ = nullptr;
 }
 
 void XeroBoardMainWindow::closeEvent(QCloseEvent* event)
@@ -90,6 +91,8 @@ void XeroBoardMainWindow::createWindows()
 	
 	status_text_ = new QLabel("Ready");
 	statusBar()->insertWidget(0, status_text_);
+
+	dirty_ = false;
 }
 
 void XeroBoardMainWindow::createMenus()
@@ -167,12 +170,14 @@ void XeroBoardMainWindow::newTab()
 
 XeroBoardWidget* XeroBoardMainWindow::newTabWithName(const QString &title)
 {
-	XeroBoardWidget* cnt = new XeroBoardWidget();
+	XeroBoardWidget* cnt = new XeroBoardWidget(this);
 	cnt->setTitle(title);
 	int index = board_tab_->addTab(cnt, title);
 	QWidget* widget = board_tab_->widget(index);
 	widget->setProperty(ContainerPropName, QVariant(count_));
 	containers_[count_++] = cnt;
+
+	dirty_ = true;
 
 	return cnt;
 }
@@ -344,6 +349,12 @@ void XeroBoardMainWindow::editTabDone()
 
 	editor_->setVisible(false);
 	bar->setTabText(which_tab_, txt);
+
+	XeroBoardWidget* widget = dynamic_cast<XeroBoardWidget*>(board_tab_->currentWidget());
+	assert(widget != nullptr);
+
+	widget->setTitle(txt);
+	dirty_ = true;
 }
 
 void XeroBoardMainWindow::editTabAborted()
@@ -383,10 +394,18 @@ void XeroBoardMainWindow::save()
 {
 	QJsonArray all;
 	QJsonObject obj;
-
+	QJsonArray tablist;
 	createJSONForBoards(all);
 	obj["version"] = "1";
 	obj["boards"] = all;
+	obj["current_tab"] = board_tab_->currentIndex();
+
+	for (int i = 0; i < board_tab_->count(); i++) {
+		QString txt = board_tab_->tabText(i);
+		tablist.push_back(txt);
+	}
+	obj["tabs"] = tablist;
+
 	QJsonDocument doc(obj);
 	QFile file(filename_);
 
@@ -404,8 +423,142 @@ void XeroBoardMainWindow::save()
 	}
 }
 
+void XeroBoardMainWindow::load(QString& filename)
+{
+	filename_ = filename;
+
+	QFile file(filename);
+	load(file);
+}
+
+void XeroBoardMainWindow::load(QFile& file)
+{
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		std::string msg = "cannot open file '";
+		msg += file.fileName().toStdString();
+		msg += "' for reading";
+		std::runtime_error err(msg.c_str());
+		throw err;
+	}
+
+	QString txt = file.readAll();
+	QJsonParseError err;
+	QJsonDocument doc = QJsonDocument::fromJson(txt.toUtf8(), &err);
+
+	if (doc.isNull()) {
+		std::string msg = "cannot parse file '";
+		msg += file.fileName().toStdString();
+		msg += "' as JSON";
+		std::runtime_error rerr(msg.c_str());
+		throw rerr;
+	}
+
+	if (!doc.isObject()) {
+		std::string msg = "file '";
+		msg += file.fileName().toStdString();
+		msg += "' is not a JSON object";
+		std::runtime_error rerr(msg.c_str());
+		throw rerr;
+	}
+
+	load(doc.object());
+}
+
+void XeroBoardMainWindow::clear()
+{
+	for (auto pair : containers_) {
+		pair.second->close();
+		delete pair.second;
+	}
+	containers_.clear();
+}
+
+void XeroBoardMainWindow::load(const QJsonObject &obj)
+{
+	if (dirty_) {
+		std::runtime_error err("cannot load layout file, existing layout has been modified");
+		throw err;
+	}
+
+	clear();
+
+	if (!obj.contains("tabs") || !obj["tabs"].isArray())
+	{
+		std::runtime_error err("invalid layout file, missing top level 'tabs' array");
+		throw err;
+	}
+
+	if (!obj.contains("boards") || !obj["boards"].isArray())
+	{
+		std::runtime_error err("invalid layout file, missing top level 'boards' array");
+		throw err;
+	}
+
+	QJsonArray boards = obj["boards"].toArray();
+
+	QJsonArray tabs = obj["tabs"].toArray();
+	for (int i = 0; i < tabs.size(); i++) {
+		if (tabs[i].isString()) {
+			QString tabname = tabs[i].toString();
+			QJsonObject obj = findBoard(boards, tabname);
+			if (!obj.isEmpty()) {
+				XeroBoardWidget* widget = newTabWithName(tabname);
+				widget->init(obj);
+			}
+		}
+	}
+
+	if (obj.contains("current_tab") && obj["current_tab"].isDouble())
+	{
+		int tab = static_cast<int>(obj["current_tab"].toDouble() + 0.5);
+		board_tab_->setCurrentIndex(tab);
+	}
+}
+
+QJsonObject XeroBoardMainWindow::findBoard(QJsonArray boards, const QString& name)
+{
+	QJsonObject obj;
+
+	for (int i = 0; i < boards.size(); i++) {
+		QJsonValue v = boards[i];
+		if (v.isObject()) {
+			QJsonObject bobj = v.toObject();
+			if (bobj.contains("title") && bobj["title"].isString() && bobj["title"].toString() == name) {
+				obj = bobj;
+				break;
+			}
+		}
+	}
+
+	return obj;
+}
+
+
 void XeroBoardMainWindow::loadLayout()
 {
+	if (dirty_)
+	{
+		QMessageBox question;
+		question.setText("The existing layout has been modified.");
+		question.setInformativeText("Do you want to save your changes?");
+		question.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+		question.setDefaultButton(QMessageBox::Save);
+		int ret = question.exec();
+		if (ret == QMessageBox::Cancel)
+			return;
+
+		if (ret == QMessageBox::Save)
+		{
+			saveLayout();
+		}
+	}
+
+	QString filename = QFileDialog::getOpenFileName(this, tr("Load Layout File"), "", tr("Layout File (*.lay);;All Files (*)"));
+	if (filename.length() == 0)
+		return;
+
+	load(filename);
 }
 
 void XeroBoardMainWindow::alignLeftEdge()

@@ -85,6 +85,9 @@
     <ClCompile Include="XeroBoardMainWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ColorListDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="XeroBoardWidget.h">
@@ -154,6 +157,9 @@
     <ClInclude Include="CustomImage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ColorListDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="XeroListWidget.ui">
@@ -169,6 +175,5 @@
     <Text Include="images\tankdrive.json">
       <Filter>Subsystems</Filter>
     </Text>
-    <Text Include="TODO.txt" />
   </ItemGroup>
 </Project>

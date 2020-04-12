@@ -23,6 +23,14 @@ class XeroBoardMainWindow : public QMainWindow
 public:
 	XeroBoardMainWindow(QWidget *parent = Q_NULLPTR);
 
+	void setDirty(bool b) {
+		dirty_ = b;
+	}
+
+	bool dirty() {
+		return dirty_;
+	}
+
 protected:
 	void closeEvent(QCloseEvent* ev);
 
@@ -63,6 +71,12 @@ private:
 
 	void save();
 	void createJSONForBoards(QJsonArray& doc);
+	void load(QString& str);
+	void load(QFile& file);
+	void load(const QJsonObject& obj);
+	QJsonObject findBoard(QJsonArray boards, const QString& name);
+
+	void clear();
 
 private:
 	static constexpr const char* GeometrySettings = "geometry";

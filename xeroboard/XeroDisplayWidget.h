@@ -1,9 +1,11 @@
 #pragma once
 
+#include "TabEditName.h"
 #include <networktables/NetworkTableInstance.h>
 #include <networktables/NetworkTable.h>
 #include <QWidget>
 #include <QString>
+#include <QLineEdit>
 
 class XeroBoardWidget;
 
@@ -44,6 +46,7 @@ protected:
 	virtual void paintEvent(QPaintEvent* ev);
 	virtual void mousePressEvent(QMouseEvent* ev);
 	virtual void mouseReleaseEvent(QMouseEvent* ev);
+	virtual void mouseDoubleClickEvent(QMouseEvent* ev);
 	virtual void mouseMoveEvent(QMouseEvent* ev);
 	virtual void resizeEvent(QResizeEvent* ev);
 
@@ -63,6 +66,10 @@ protected:
 	static constexpr int CloseXBorder = 3;
 	static constexpr int CornerCursorBoundary = 5;
 	static constexpr int EdgeCursorBoundary = 5;
+
+private:
+	void editTabDone();
+	void editTabAborted();
 
 private:
 	enum class MouseMode
@@ -96,4 +103,5 @@ private:
 	std::shared_ptr<QWidget> child_;
 	bool enabled_;
 	bool selected_;
+	TabEditName* title_editor_;
 };

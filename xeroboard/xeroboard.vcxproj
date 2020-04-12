@@ -121,6 +121,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ColorDisplay.cpp" />
+    <ClCompile Include="ColorListDisplay.cpp" />
     <ClCompile Include="CustomImage.cpp" />
     <ClCompile Include="CustomImageMgr.cpp" />
     <ClCompile Include="IDataDisplay.cpp" />
@@ -149,6 +150,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
   <ItemGroup>
     <ClInclude Include="ColorDisplay.h" />
     <ClInclude Include="build.h" />
+    <ClInclude Include="ColorListDisplay.h" />
     <ClInclude Include="CustomImage.h" />
     <ClInclude Include="CustomImageMgr.h" />
     <ClInclude Include="IDataDisplay.h" />
@@ -175,7 +177,6 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
   </ItemGroup>
   <ItemGroup>
     <Text Include="images\tankdrive.json" />
-    <Text Include="TODO.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

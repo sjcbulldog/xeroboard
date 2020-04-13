@@ -120,6 +120,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChartWrapper.cpp" />
     <ClCompile Include="ColorDisplay.cpp" />
     <ClCompile Include="ColorListDisplay.cpp" />
     <ClCompile Include="CustomImage.cpp" />
@@ -150,6 +151,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <QtRcc Include="xeroboard.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChartWrapper.h" />
     <ClInclude Include="ColorDisplay.h" />
     <ClInclude Include="build.h" />
     <ClInclude Include="ColorListDisplay.h" />

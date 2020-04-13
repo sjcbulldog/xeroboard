@@ -62,6 +62,7 @@ protected:
 private:
 	void dropVariable(QString node, QPoint pt);
 	void dropPlot(QString node, QPoint pt);
+	void dropPlotVar(QString node, QPoint pt);
 	void createWidget(const QJsonObject &obj);
 	QRect parseGeometry(const QJsonObject& obj);
 	void createSingle(const QJsonObject& desc, const QRect& geom);

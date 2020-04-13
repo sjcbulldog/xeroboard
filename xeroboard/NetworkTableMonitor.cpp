@@ -168,6 +168,10 @@ std::vector<std::string> NetworkTableMonitor::split(const std::string& str)
 
 void NetworkTableMonitor::addEntry(const std::string& name, const std::shared_ptr<nt::Value> value)
 {
+	QString str(name.c_str());
+	if (str.startsWith("/XeroPlot") && str.contains("/data/"))
+		return;
+
 	std::vector<std::string> words = split(name);
 	if (words.size() == 0)
 		return;

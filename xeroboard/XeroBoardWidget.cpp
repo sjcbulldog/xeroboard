@@ -1,4 +1,4 @@
-#include "XeroBoardWidget.h"
+ #include "XeroBoardWidget.h"
 #include "XeroSingleItemWidget.h"
 #include "XeroMultiItemWidget.h"
 #include "XeroPlotItemWidget.h"
@@ -220,6 +220,24 @@ void XeroBoardWidget::dropPlot(QString key, QPoint pt)
 	main_->setDirty(true);
 }
 
+void XeroBoardWidget::dropPlotVar(QString key, QPoint pt)
+{
+	QRegExp exp("\\{(.*)\\},\\{(.*)\\}");
+	if (exp.exactMatch(key)) {
+		QString plotname = exp.cap(1);
+		QString varname = exp.cap(2);
+
+		QRect r(pt, QSize(512, 384));
+		Plot* plot = new Plot(plotname.toStdString());
+		XeroPlotItemWidget* item = new XeroPlotItemWidget(plot, this);
+		item->setGeometry(r);
+		display_widgets_.push_back(item);
+		item->setVisible(true);
+		item->addVar(varname);
+		main_->setDirty(true);
+	}
+}
+
 void XeroBoardWidget::dropEvent(QDropEvent* ev)
 {
 	QString text;
@@ -234,6 +252,8 @@ void XeroBoardWidget::dropEvent(QDropEvent* ev)
 			dropVariable(node.mid(4), ev->pos());
 		else if (node.length() > 4 && node.mid(0, 5) == "plot:")
 			dropPlot(node.mid(5), ev->pos());
+		else if (node.length() > 7 && node.mid(0, 8) == "plotvar:")
+			dropPlotVar(node.mid(8), ev->pos());
 	}
 	setBackgroundRole(QPalette::Background);
 }

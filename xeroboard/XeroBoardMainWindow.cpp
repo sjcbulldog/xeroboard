@@ -282,7 +282,6 @@ void XeroBoardMainWindow::syncDisplay(QTreeWidget* tree, std::shared_ptr<NTEntry
 	}
 
 	syncDisplay(topitem, data);
-
 }
 
 void XeroBoardMainWindow::syncDisplay(QTreeWidgetItem* item, std::shared_ptr<NTEntryTracker> data)

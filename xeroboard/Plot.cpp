@@ -20,6 +20,17 @@ Plot::~Plot()
 	disconnect(complete_conn_);
 }
 
+std::shared_ptr<PlotNode> Plot::getNode(const std::string& name)
+{
+	for (auto node : nodes_)
+	{
+		if (node->name() == name)
+			return node;
+	}
+
+	return nullptr;
+}
+
 void Plot::populate()
 {
 	node_count_ = std::make_shared<SingleDataSource>("/XeroPlot/" + key_ + "/count");

@@ -17,6 +17,8 @@ public:
 		return key_;
 	}
 
+	std::shared_ptr<PlotNode> getNode(const std::string& name);
+
 signals:
 	void nodeCountChanged();
 	void completeStateChanged();

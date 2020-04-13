@@ -14,6 +14,6 @@ public:
 	virtual ~IDataDisplay()
 	{
 	}
+
 	virtual void setValue(std::shared_ptr<nt::Value> value) = 0;
 };
-

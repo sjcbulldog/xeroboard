@@ -1,7 +1,9 @@
 #include "XeroBoardWidget.h"
 #include "XeroSingleItemWidget.h"
 #include "XeroMultiItemWidget.h"
+#include "XeroPlotItemWidget.h"
 #include "XeroBoardMainWindow.h"
+#include "Plot.h"
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <QDragMoveEvent>
@@ -207,8 +209,15 @@ void XeroBoardWidget::dropVariable(QString node, QPoint pt)
 	}
 }
 
-void XeroBoardWidget::dropPlot(QString plot, QPoint pt)
+void XeroBoardWidget::dropPlot(QString key, QPoint pt)
 {
+	QRect r(pt, QSize(512, 384));
+	Plot* plot = new Plot(key.toStdString());
+	XeroPlotItemWidget* item = new XeroPlotItemWidget(plot, this);
+	item->setGeometry(r);
+	display_widgets_.push_back(item);
+	item->setVisible(true);
+	main_->setDirty(true);
 }
 
 void XeroBoardWidget::dropEvent(QDropEvent* ev)

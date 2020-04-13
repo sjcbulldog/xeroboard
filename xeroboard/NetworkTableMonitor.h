@@ -22,7 +22,6 @@ public:
 	static std::string toString(const nt::Value &v);
 
 private:
-	void connectionChangedListener(const nt::ConnectionNotification& ev);
 	void tableChangedEvent(const nt::EntryNotification& ev);
 	void addEntry(const std::string& name, const std::shared_ptr<nt::Value> value);
 	void deleteEntry(const std::string& name);

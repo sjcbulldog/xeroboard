@@ -26,7 +26,6 @@ NetworkTableMonitor::NetworkTableMonitor(const std::string &ipaddr)
 		name = name.substr(0, name.length() - 1);
 
 	top_ = std::make_shared<NTEntryTracker>(name);
-
 	dirty_ = false;
 }
 
@@ -187,6 +186,7 @@ void NetworkTableMonitor::addEntry(const std::string& name, const std::shared_pt
 
 void NetworkTableMonitor::deleteEntry(const std::string& name)
 {
+	// dirty_ = true;
 }
 
 std::shared_ptr<NTEntryTracker> NetworkTableMonitor::getCopy()

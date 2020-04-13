@@ -51,11 +51,11 @@
   </ImportGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>msvc2017_64</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>charts;core;gui;widgets</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>msvc2017_64</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>charts;core;gui;widgets</QtModules>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
     <Import Project="$(QtMsBuild)\qt.props" />
@@ -127,6 +127,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClCompile Include="IDataDisplay.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NetworkTableMonitor.cpp" />
+    <ClCompile Include="Plot.cpp" />
     <ClCompile Include="SingleDataSource.cpp" />
     <ClCompile Include="TabEditName.cpp" />
     <ClCompile Include="TextDisplay.cpp" />
@@ -138,6 +139,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClCompile Include="XeroListWidget.cpp" />
     <ClCompile Include="XeroMultiItemWidget.cpp" />
     <ClCompile Include="XeroNTTreeWidget.cpp" />
+    <ClCompile Include="XeroPlotItemWidget.cpp" />
     <ClCompile Include="XeroPlotTreeWidget.cpp" />
     <ClCompile Include="XeroSingleItemWidget.cpp" />
   </ItemGroup>
@@ -158,12 +160,15 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClInclude Include="NetworkTableMonitor.h" />
     <QtMoc Include="SingleDataSource.h" />
     <QtMoc Include="TabEditName.h" />
+    <ClInclude Include="Plot.h" />
+    <ClInclude Include="PlotNode.h" />
     <ClInclude Include="TextDisplay.h" />
     <ClInclude Include="TextListDisplay.h" />
     <ClInclude Include="ArrayDisplay.h" />
     <ClInclude Include="XeroDisplayWidget.h" />
     <ClInclude Include="XeroMultiItemWidget.h" />
     <ClInclude Include="XeroNTTreeWidget.h" />
+    <ClInclude Include="XeroPlotItemWidget.h" />
     <ClInclude Include="XeroPlotTreeWidget.h" />
     <ClInclude Include="XeroSingleItemWidget.h" />
     <QtMoc Include="XeroListWidget.h" />

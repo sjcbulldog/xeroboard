@@ -29,6 +29,9 @@ private:
 	void emitCountChanged();
 	void emitCompleteStateChanged();
 
+	void getAllData();
+	void createNodes(const std::vector<std::string>& columns);
+
 private:
 	std::string key_;
 	std::vector<std::shared_ptr<PlotNode>> nodes_;

@@ -9,6 +9,8 @@ XeroPlotItemWidget::XeroPlotItemWidget(Plot* plot, QWidget* parent) : XeroDispla
 	setTitle(plot_->key().c_str());
 	chart_ = new QtCharts::QChartView(this);
 	chart_->chart()->setDropShadowEnabled(true);
+
+	populateChart();
 }
 
 void XeroPlotItemWidget::resizeEvent(QResizeEvent* ev)
@@ -26,4 +28,9 @@ void XeroPlotItemWidget::createJSON(QJsonObject& obj)
 	for (QString node : node_names_)
 		nodes.push_back(node);
 	obj["nodes"] = nodes;
+}
+
+void XeroPlotItemWidget::populateChart()
+{
+
 }

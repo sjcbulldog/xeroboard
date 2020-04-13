@@ -160,7 +160,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClInclude Include="NetworkTableMonitor.h" />
     <QtMoc Include="SingleDataSource.h" />
     <QtMoc Include="TabEditName.h" />
-    <ClInclude Include="Plot.h" />
+    <QtMoc Include="Plot.h" />
     <ClInclude Include="PlotNode.h" />
     <ClInclude Include="TextDisplay.h" />
     <ClInclude Include="TextListDisplay.h" />

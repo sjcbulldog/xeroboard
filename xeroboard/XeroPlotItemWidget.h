@@ -13,6 +13,7 @@ public:
 
 protected:
 	void resizeEvent(QResizeEvent* ev) override;
+	void populateChart();
 
 private:
 	Plot* plot_;

@@ -6,7 +6,7 @@
 class PlotNode
 {
 public:
-	PlotNode(std::string& name) {
+	PlotNode(const std::string& name) {
 		name_ = name;
 	}
 
@@ -20,6 +20,13 @@ public:
 
 	double operator[](size_t i) {
 		return values_[i];
+	}
+
+	void setAt(size_t offset, double v) {
+		if (offset == values_.size())
+			values_.push_back(v);
+		else if (offset < values_.size())
+			values_[offset] = v;
 	}
 
 private:

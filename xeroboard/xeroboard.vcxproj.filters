@@ -111,6 +111,9 @@
     <QtMoc Include="XeroBoardMainWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Plot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="xeroboard.qrc">
@@ -164,9 +167,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ColorListDisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Plot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="XeroPlotItemWidget.h">

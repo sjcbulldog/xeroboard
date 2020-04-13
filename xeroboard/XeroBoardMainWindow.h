@@ -67,7 +67,8 @@ private:
 
 	void editDelete();
 
-	bool treeHasTopLevelItem(QTreeWidget *tree, const QString& str);
+	QTreeWidgetItem *getTopLevelItem(QTreeWidget *tree, const QString& str);
+	QTreeWidgetItem* getItem(QTreeWidgetItem* item, const QString& str);
 
 	void save();
 	void createJSONForBoards(QJsonArray& doc);

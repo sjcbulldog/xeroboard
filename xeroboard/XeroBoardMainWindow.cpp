@@ -209,15 +209,27 @@ void XeroBoardMainWindow::timerProc()
 	}
 }
 
-bool XeroBoardMainWindow::treeHasTopLevelItem(QTreeWidget* tree, const QString& label)
+QTreeWidgetItem *XeroBoardMainWindow::getTopLevelItem(QTreeWidget* tree, const QString& label)
 {
 	for (int i = 0; i < tree->topLevelItemCount(); i++)
 	{
-		if (tree->topLevelItem(i)->text(0) == label)
-			return true;
+		QTreeWidgetItem* item = tree->topLevelItem(i);
+		if (item->text(0) == label)
+			return item;
 	}
 
-	return false;
+	return nullptr;
+}
+
+QTreeWidgetItem* XeroBoardMainWindow::getItem(QTreeWidgetItem* item, const QString& label)
+{
+	for (int i = 0; i < item->childCount(); i++) {
+		QTreeWidgetItem* child = item->child(i);
+		if (child->text(0) == label)
+			return child;
+	}
+
+	return nullptr;
 }
 
 void XeroBoardMainWindow::syncPlots(QTreeWidget* tree, std::shared_ptr<NTEntryTracker> data)
@@ -227,11 +239,25 @@ void XeroBoardMainWindow::syncPlots(QTreeWidget* tree, std::shared_ptr<NTEntryTr
 	{
 		for (const auto& entry : plotkey->getChildMap())
 		{
-			if (!treeHasTopLevelItem(tree, entry.first.c_str()))
+			QTreeWidgetItem* item = getTopLevelItem(tree, entry.first.c_str());
+			if (item == nullptr)
 			{
-				QTreeWidgetItem* item = new QTreeWidgetItem();
+				item = new QTreeWidgetItem();
 				item->setText(0, entry.first.c_str());
 				tree->addTopLevelItem(item);
+			}
+
+			auto key = entry.second;
+			auto cols = key->getChild("columns");
+			if (cols->getValue()->IsStringArray()) {
+				auto colarr = cols->getValue()->GetStringArray();
+				for (auto col : colarr) {
+					if (getItem(item, col.c_str()) == nullptr) {
+						QTreeWidgetItem* colitem = new QTreeWidgetItem();
+						colitem->setText(0, col.c_str());
+						item->addChild(colitem);
+					}
+				}
 			}
 		}
 	}

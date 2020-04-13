@@ -32,5 +32,4 @@ void XeroPlotItemWidget::createJSON(QJsonObject& obj)
 
 void XeroPlotItemWidget::populateChart()
 {
-
 }

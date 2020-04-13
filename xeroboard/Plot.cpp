@@ -69,7 +69,7 @@ void Plot::getAllData()
 		return;
 	std::vector<std::string> columns = entry.GetStringArray({});
 
-	if (node_count_value_ != count && nodes_.size() > 0)
+	if (node_count_value_ != count)
 		createNodes(columns);
 
 	for (int i = 0; i < count; i++) {

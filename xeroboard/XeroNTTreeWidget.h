@@ -1,10 +1,12 @@
 #pragma once
-#include <QTreeWidget>
+#include <XeroTreeWidget.h>
+#include <networktables/NetworkTableInstance.h>
+#include <networktables/NetworkTable.h>
 
-class XeroNTTreeWidget : public QTreeWidget
+class XeroNTTreeWidget : public XeroTreeWidget
 {
 public:
-	XeroNTTreeWidget(QWidget* parent = nullptr);
+	XeroNTTreeWidget(nt::NetworkTableInstance &inst, QWidget* parent = nullptr);
 
 	virtual ~XeroNTTreeWidget();
 
@@ -12,5 +14,10 @@ public:
 
 private:
 	void expanded(QTreeWidgetItem* item);
+	void tableChangedEvent(const nt::EntryNotification& ev);
+
+private:
+	nt::NetworkTableInstance& inst_;
+	NT_EntryListener listener_;
 };
 

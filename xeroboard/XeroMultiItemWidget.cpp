@@ -66,31 +66,9 @@ void XeroMultiItemWidget::setOne(size_t index)
 	QString txt;
 
 	auto value = sources_[index]->value();
+	txt = value.toString();
 
-	switch (value->type())
-	{
-	case NT_UNASSIGNED:
-		break;
-	case NT_BOOLEAN:
-		txt = value->GetBoolean() ? "TRUE" : "FALSE";
-		break;
-	case NT_DOUBLE:
-		txt = QString::number(value->GetDouble());
-		break;
-	case NT_STRING:
-		txt = value->GetString().str().c_str();
-		break;
-	case NT_RAW:
-		break;
-	case NT_BOOLEAN_ARRAY:
-		break;
-	case NT_DOUBLE_ARRAY:
-		break;
-	case NT_STRING_ARRAY:
-		break;
-	case NT_RPC:
-		break;
-	}
+
 
 	QTreeWidgetItem* item;
 	if (index >= display_->topLevelItemCount())

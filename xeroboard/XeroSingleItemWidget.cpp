@@ -106,10 +106,10 @@ void XeroSingleItemWidget::valueChanged()
 		return;
 
 	auto value = source_->value();
-	if (value == nullptr)
+	if (value.isEmpty())
 		return;
 
-	DisplayType dtype = mapDataToDisplayType(value);
+	DisplayType dtype = mapDataToDisplayType(value.value());
 
 	if (dtype != display_)
 	{
@@ -136,7 +136,8 @@ void XeroSingleItemWidget::valueChanged()
 			r.setWidth(width);
 			setGeometry(r);
 		}
-		data_display_->setValue(value);
+		data_display_->setValue(value.value());
+
 		break;
 	case DisplayType::TextList:
 		if (data_display_ == nullptr)
@@ -154,7 +155,7 @@ void XeroSingleItemWidget::valueChanged()
 			r.setWidth(width);
 			setGeometry(r);
 		}
-		data_display_->setValue(value);
+		data_display_->setValue(value.value());
 		break;
 	case DisplayType::HorizontalBar:
 		r = geometry();
@@ -182,7 +183,7 @@ void XeroSingleItemWidget::valueChanged()
 			r.setWidth(width);
 			setGeometry(r);
 		}
-		data_display_->setValue(value);
+		data_display_->setValue(value.value());
 		break;
 	case DisplayType::ColorList:
 		if (data_display_ == nullptr)
@@ -200,7 +201,7 @@ void XeroSingleItemWidget::valueChanged()
 			r.setWidth(width);
 			setGeometry(r);
 		}
-		data_display_->setValue(value);
+		data_display_->setValue(value.value());
 
 		break;
 	}

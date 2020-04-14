@@ -1,8 +1,6 @@
 #pragma once
 
 #include "XeroBoardWidget.h"
-#include "NetworkTableMonitor.h"
-#include "NTEntryTracker.h"
 #include "XeroNTTreeWidget.h"
 #include "XeroPlotTreeWidget.h"
 #include "TabEditName.h"
@@ -14,6 +12,8 @@
 #include <QSettings>
 #include <QStatusBar>
 #include <QLabel>
+#include <networktables/NetworkTableInstance.h>
+#include <networktables/NetworkTable.h>
 #include <memory>
 
 class XeroBoardMainWindow : public QMainWindow
@@ -38,11 +38,6 @@ private:
 	void createWindows();
 	void createMenus();
 	void createStatusBar();
-
-	void timerProc();
-	void syncDisplay(QTreeWidget *widget, std::shared_ptr<NTEntryTracker> data);
-	void syncDisplay(QTreeWidgetItem* item, std::shared_ptr<NTEntryTracker> data);
-	void syncPlots(QTreeWidget* widget, std::shared_ptr<NTEntryTracker> data);
 
 	void closeTab(int which);
 	void editTab(int which);
@@ -80,20 +75,20 @@ private:
 	void clear();
 
 private:
+	static constexpr const char* IPAddressSetting = "ipaddr";
 	static constexpr const char* GeometrySettings = "geometry";
 	static constexpr const char* WindowStateSettings = "windowstate";
 	static constexpr const char* LeftSplitterSettings = "leftsplitter";
 	static constexpr const char* ContainerPropName = "which";
 
 private:
+	QString ipaddr_;
 	QSplitter* left_right_splitter_;
 	XeroNTTreeWidget* nt_tree_;
 	XeroPlotTreeWidget *plot_tree_;
 	QTabWidget* board_tab_;
 	QTabWidget* select_tab_;
-	NetworkTableMonitor* monitor_;
-	std::shared_ptr<NTEntryTracker> top_;
-	QTimer* timer_;
+	nt::NetworkTableInstance inst_;
 	QSettings settings_;
 	int which_tab_;
 	int count_;

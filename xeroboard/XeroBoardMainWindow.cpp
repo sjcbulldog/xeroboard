@@ -1,5 +1,4 @@
 #include "XeroBoardMainWindow.h"
-#include "NetworkTableMonitor.h"
 #include <QDebug>
 #include <QMenu>
 #include <QMenuBar>
@@ -15,7 +14,13 @@ XeroBoardMainWindow::XeroBoardMainWindow(QWidget *parent) : QMainWindow(parent)
 	image_mgr_.init();
 	count_ = 0;
 
-	monitor_ = new NetworkTableMonitor();
+	ipaddr_ = "127.0.0.1";
+	if (settings_.contains(IPAddressSetting))
+		ipaddr_ = settings_.value(IPAddressSetting).toString();
+
+	inst_ = nt::NetworkTableInstance::GetDefault();
+	inst_.StartClient(ipaddr_.toStdString().c_str());
+
 	createWindows();
 	createMenus();
 	createStatusBar();
@@ -34,10 +39,6 @@ XeroBoardMainWindow::XeroBoardMainWindow(QWidget *parent) : QMainWindow(parent)
 			sizes.push_back(v.toInt());
 		left_right_splitter_->setSizes(sizes);
 	}
-
-	timer_ = new QTimer(this);
-	(void)connect(timer_, &QTimer::timeout, this, &XeroBoardMainWindow::timerProc);
-	timer_->start(100);
 
 	connected_ = false;
 	editor_ = nullptr;
@@ -63,7 +64,7 @@ void XeroBoardMainWindow::createWindows()
 	select_tab_->setTabsClosable(false);
 	left_right_splitter_->addWidget(select_tab_);
 
-	nt_tree_ = new XeroNTTreeWidget(select_tab_);
+	nt_tree_ = new XeroNTTreeWidget(inst_, select_tab_);
 	nt_tree_->setColumnCount(2);
 	nt_tree_->setDragEnabled(true);
 	nt_tree_->setDragDropMode(QAbstractItemView::DragOnly);
@@ -71,7 +72,7 @@ void XeroBoardMainWindow::createWindows()
 	nt_tree_->setHeaderLabels({ "Name", "Value" });
 	select_tab_->addTab(nt_tree_, "Table");
 
-	plot_tree_ = new XeroPlotTreeWidget(select_tab_);
+	plot_tree_ = new XeroPlotTreeWidget(inst_, select_tab_);
 	plot_tree_->setColumnCount(1);
 	plot_tree_->setDragEnabled(true);
 	plot_tree_->setDragDropMode(QAbstractItemView::DragOnly);
@@ -182,33 +183,6 @@ XeroBoardWidget* XeroBoardMainWindow::newTabWithName(const QString &title)
 	return cnt;
 }
 
-void XeroBoardMainWindow::timerProc()
-{
-	if (!monitor_->isConnected()) {
-		if (connected_) {
-			status_text_->setText("Not Connected");
-			connected_ = false;
-			for (auto& pair : containers_)
-				pair.second->setEnabled(false);
-		}
-	}
-	else 
-	{
-		if (!connected_) {
-			status_text_->setText("Connected");
-			connected_ = true;
-			for (auto& pair : containers_)
-				pair.second->setEnabled(true);
-		}
-		if (monitor_->isDirty())
-		{
-			top_ = monitor_->getCopy();
-			syncDisplay(nt_tree_, top_);
-			syncPlots(plot_tree_, top_);
-		}
-	}
-}
-
 QTreeWidgetItem *XeroBoardMainWindow::getTopLevelItem(QTreeWidget* tree, const QString& label)
 {
 	for (int i = 0; i < tree->topLevelItemCount(); i++)
@@ -230,103 +204,6 @@ QTreeWidgetItem* XeroBoardMainWindow::getItem(QTreeWidgetItem* item, const QStri
 	}
 
 	return nullptr;
-}
-
-void XeroBoardMainWindow::syncPlots(QTreeWidget* tree, std::shared_ptr<NTEntryTracker> data)
-{
-	auto plotkey = data->getChild("XeroPlot");
-	if (plotkey != nullptr && plotkey->isSubTable())
-	{
-		for (const auto& entry : plotkey->getChildMap())
-		{
-			QTreeWidgetItem* item = getTopLevelItem(tree, entry.first.c_str());
-			if (item == nullptr)
-			{
-				item = new QTreeWidgetItem();
-				item->setText(0, entry.first.c_str());
-				tree->addTopLevelItem(item);
-			}
-
-			auto key = entry.second;
-			auto cols = key->getChild("columns");
-			if (cols->getValue()->IsStringArray()) {
-				auto colarr = cols->getValue()->GetStringArray();
-				for (auto col : colarr) {
-					if (getItem(item, col.c_str()) == nullptr) {
-						QTreeWidgetItem* colitem = new QTreeWidgetItem();
-						colitem->setText(0, col.c_str());
-						item->addChild(colitem);
-					}
-				}
-			}
-		}
-	}
-}
-
-void XeroBoardMainWindow::syncDisplay(QTreeWidget* tree, std::shared_ptr<NTEntryTracker> data)
-{
-	QTreeWidgetItem* topitem = nullptr;
-
-	if (tree == nullptr)
-		return;
-
-	if (tree->topLevelItemCount() == 0)
-	{
-		topitem = new QTreeWidgetItem(tree);
-		topitem->setText(0, "/");
-		tree->insertTopLevelItem(0, topitem);
-	}
-	else
-	{
-		topitem = tree->topLevelItem(0);
-	}
-
-	syncDisplay(topitem, data);
-}
-
-void XeroBoardMainWindow::syncDisplay(QTreeWidgetItem* item, std::shared_ptr<NTEntryTracker> data)
-{
-	std::list<QTreeWidgetItem*> todel;
-
-	if (data->isSubTable())
-	{
-		for (int i = 0; i < item->childCount(); i++)
-		{
-			QTreeWidgetItem* child = item->child(i);
-			if (data->getChild(child->text(0).toStdString()) == nullptr)
-			{
-				todel.push_back(child);
-			}
-		}
-
-		for (QTreeWidgetItem* child : todel)
-			item->removeChild(child);
-
-		for (auto pair : data->getChildMap())
-		{
-			QTreeWidgetItem* child = nullptr;
-			for (int i = 0; i < item->childCount(); i++)
-			{
-				if (item->child(i)->text(0).toStdString() == pair.first)
-				{
-					child = item->child(i);
-					break;
-				}
-			}
-
-			if (child == nullptr)
-			{
-				child = new QTreeWidgetItem(item);
-				child->setText(0, pair.first.c_str());
-			}
-
-			syncDisplay(child, pair.second);
-		}
-	}
-	else
-	{
-		item->setText(1, NetworkTableMonitor::toString(*data->getValue()).c_str());
-	}
 }
 
 void XeroBoardMainWindow::closeTab(int which)

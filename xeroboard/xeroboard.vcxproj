@@ -127,7 +127,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClCompile Include="CustomImageMgr.cpp" />
     <ClCompile Include="IDataDisplay.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="NetworkTableMonitor.cpp" />
+    <ClCompile Include="NTValueWrapper.cpp" />
     <ClCompile Include="Plot.cpp" />
     <ClCompile Include="SingleDataSource.cpp" />
     <ClCompile Include="TabEditName.cpp" />
@@ -143,6 +143,7 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClCompile Include="XeroPlotItemWidget.cpp" />
     <ClCompile Include="XeroPlotTreeWidget.cpp" />
     <ClCompile Include="XeroSingleItemWidget.cpp" />
+    <ClCompile Include="XeroTreeWidget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="XeroBoardMainWindow.h" />
@@ -158,8 +159,8 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClInclude Include="CustomImage.h" />
     <ClInclude Include="CustomImageMgr.h" />
     <ClInclude Include="IDataDisplay.h" />
-    <ClInclude Include="NTEntryTracker.h" />
-    <ClInclude Include="NetworkTableMonitor.h" />
+    <ClInclude Include="NTValueWrapper.h" />
+    <ClInclude Include="XeroTreeWidget.h" />
     <QtMoc Include="SingleDataSource.h" />
     <QtMoc Include="TabEditName.h" />
     <QtMoc Include="Plot.h" />

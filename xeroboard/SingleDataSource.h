@@ -1,7 +1,6 @@
 #pragma once
 
-#include <networktables/NetworkTableInstance.h>
-#include <networktables/NetworkTable.h>
+#include "NTValueWrapper.h"
 #include <QObject>
 #include <QString>
 
@@ -13,7 +12,7 @@ public:
 	SingleDataSource(const std::string& name);
 	virtual ~SingleDataSource();
 
-	std::shared_ptr<nt::Value> value() {
+	const NTValueWrapper & value() {
 		return value_;
 	}
 
@@ -22,7 +21,7 @@ public:
 	}
 
 	bool isSubtable() {
-		return value_ == nullptr;
+		return value_.isEmpty();
 	}
 
 signals:
@@ -36,6 +35,6 @@ private:
 private:
 	QString name_;
 	NT_EntryListener listener_;
-	std::shared_ptr<nt::Value> value_;
+	NTValueWrapper value_;
 };
 

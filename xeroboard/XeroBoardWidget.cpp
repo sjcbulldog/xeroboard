@@ -188,10 +188,27 @@ void XeroBoardWidget::dropVariable(QString node, QPoint pt)
 		QRect r = w->geometry();
 		if (r.contains(pt))
 		{
-			//
-			// Replace a single widget with a multi widget
-			//
-			replaceSingleWithMulti(w, node.toStdString());
+			ImageWidget* imw = dynamic_cast<ImageWidget*>(w);
+			if (imw != nullptr)
+			{
+				dropOnImage(imw, node.toStdString(), pt);
+				return;
+			}
+
+			XeroSingleItemWidget* sw = dynamic_cast<XeroSingleItemWidget*>(w);
+			if (sw != nullptr)
+			{
+				dropOnSingle(sw, node.toStdString(), pt);
+				return;
+			}
+
+			XeroMultiItemWidget* mw = dynamic_cast<XeroMultiItemWidget*>(w);
+			if (mw != nullptr)
+			{
+				dropOnMulti(mw, node.toStdString(), pt);
+				return;
+			}
+
 			return;
 		}
 	}
@@ -289,29 +306,30 @@ void XeroBoardWidget::removeChild(XeroDisplayWidget *widget)
 	display_widgets_.erase(it);
 }
 
-void XeroBoardWidget::replaceSingleWithMulti(XeroDisplayWidget* w, const std::string& newnode)
+void XeroBoardWidget::dropOnSingle(XeroSingleItemWidget* sw, const std::string& newnode, QPoint pt)
 {
-	auto multi = dynamic_cast<XeroMultiItemWidget *>(w);
-	if (multi != nullptr)
-	{
-		multi->addSource(newnode, false);
-	}
-	else 
-	{
-		auto single = dynamic_cast<XeroSingleItemWidget*>(w);
-		if (single != nullptr)
-		{
-			QRect r = w->geometry();
-			XeroMultiItemWidget* neww = new XeroMultiItemWidget(r, this);
-			neww->addSource(single->takeSource(), false);
-			single->close();
+	QRect r = sw->geometry();
+	XeroMultiItemWidget* neww = new XeroMultiItemWidget(r, this);
+	neww->addSource(sw->takeSource(), false);
+	sw->close();
 
-			neww->addSource(newnode, true);
-			display_widgets_.push_back(neww);
-			neww->setVisible(true);
-		}
-	}
+	neww->addSource(newnode, true);
+	display_widgets_.push_back(neww);
+	neww->setVisible(true);
 	main_->setDirty(true);
+}
+
+void XeroBoardWidget::dropOnMulti(XeroMultiItemWidget *mw, const std::string &newnode, QPoint pt)
+{
+	mw->addSource(newnode, false);
+	main_->setDirty(true);
+}
+
+void XeroBoardWidget::dropOnImage(ImageWidget* imw, const std::string& newnode, QPoint pt)
+{
+	QPoint npt(pt.x() - imw->x(), pt.y() - imw->y());
+	std::shared_ptr<SingleDataSource> src = std::make_shared<SingleDataSource>(newnode);
+	imw->dropNode(src, pt);
 }
 
 void XeroBoardWidget::selectWidget(XeroDisplayWidget* w, bool replace)

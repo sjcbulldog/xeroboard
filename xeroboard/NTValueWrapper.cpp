@@ -26,7 +26,7 @@ NTValueWrapper& NTValueWrapper::operator=(std::shared_ptr<nt::Value> v)
 	return *this;
 }
 
-QString NTValueWrapper::toString()
+QString NTValueWrapper::toString() const
 {
 	QString txt;
 

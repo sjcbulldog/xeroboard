@@ -22,7 +22,7 @@ public:
 		return value_;
 	}
 
-	QString toString();
+	QString toString() const;
 
 private:
 	std::shared_ptr<nt::Value> value_;

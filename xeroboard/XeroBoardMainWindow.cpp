@@ -80,6 +80,12 @@ void XeroBoardMainWindow::createWindows()
 	plot_tree_->setHeaderLabels({ "Plot" });
 	select_tab_->addTab(plot_tree_, "Plots");
 
+	image_list_ = new ImageWidgetList(image_mgr_, select_tab_);
+	image_list_->setDragEnabled(true);
+	image_list_->setDragDropMode(QAbstractItemView::DragOnly);
+	image_list_->setSelectionMode(QAbstractItemView::SingleSelection);
+	select_tab_->addTab(image_list_, "Images");
+
 	board_tab_ = new QTabWidget(left_right_splitter_);
 	board_tab_->setTabsClosable(true);
 
@@ -123,15 +129,6 @@ void XeroBoardMainWindow::createMenus()
 	act = edit_->addAction(tr("Delete"));
 	(void)connect(act, &QAction::triggered, this, &XeroBoardMainWindow::editDelete);
 	
-	if (image_mgr_.count() > 0)
-	{
-		QMenu *menu = edit_->addMenu("&Create");
-		for (const QString& im : image_mgr_.imageNames())
-		{
-			menu->addAction(im);
-		}
-	}
-
 	view_ = new QMenu(tr("&View"));
 	menuBar()->addMenu(view_);
 	act = view_->addAction(tr("New Tab"));

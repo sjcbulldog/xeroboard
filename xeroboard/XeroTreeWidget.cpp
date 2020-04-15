@@ -34,10 +34,25 @@ void XeroTreeWidget::deleteItem(const QString& text)
 		}
 	}
 	else {
-		//
-		// This is a child item
-		//
-		assert(false);
+		int index = text.lastIndexOf("/");
+		QString parent = text.mid(0, index);
+		QString itemtext = text.mid(index + 1);
+
+		QTreeWidgetItem* pitem = findItem(parent);
+		if (pitem != nullptr) {
+			int index = -1;
+			for (int i = 0; i < pitem->childCount(); i++) {
+				if (pitem->child(i)->text(0) == itemtext) {
+					index = i;
+					break;
+				}
+			}
+
+			if (index != -1) {
+				QTreeWidgetItem* item = pitem->takeChild(index);
+				delete item;
+			}
+		}
 	}
 }
 

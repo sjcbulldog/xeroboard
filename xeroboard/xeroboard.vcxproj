@@ -126,6 +126,8 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClCompile Include="CustomImage.cpp" />
     <ClCompile Include="CustomImageMgr.cpp" />
     <ClCompile Include="IDataDisplay.cpp" />
+    <ClCompile Include="ImageWidget.cpp" />
+    <ClCompile Include="ImageWidgetList.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NTValueWrapper.cpp" />
     <ClCompile Include="Plot.cpp" />
@@ -159,6 +161,8 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <ClInclude Include="CustomImage.h" />
     <ClInclude Include="CustomImageMgr.h" />
     <ClInclude Include="IDataDisplay.h" />
+    <ClInclude Include="ImageWidget.h" />
+    <ClInclude Include="ImageWidgetList.h" />
     <ClInclude Include="NTValueWrapper.h" />
     <ClInclude Include="XeroTreeWidget.h" />
     <QtMoc Include="SingleDataSource.h" />

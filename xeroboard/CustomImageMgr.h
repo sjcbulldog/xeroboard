@@ -20,6 +20,10 @@ public:
 		return images_.keys();
 	}
 
+	std::shared_ptr<CustomImage> get(const QString& name) {
+		return images_[name];
+	}
+
 private:
 	static constexpr const char* VersionTag = "version";
 	static constexpr const char* NameTag = "name";

@@ -3,6 +3,7 @@
 #include "XeroBoardWidget.h"
 #include "XeroNTTreeWidget.h"
 #include "XeroPlotTreeWidget.h"
+#include "ImageWidgetList.h"
 #include "TabEditName.h"
 #include "CustomImageMgr.h"
 #include <QMainWindow>
@@ -29,6 +30,10 @@ public:
 
 	bool dirty() {
 		return dirty_;
+	}
+
+	CustomImageMgr& getCustomImageManager() {
+		return image_mgr_;
 	}
 
 protected:
@@ -86,6 +91,7 @@ private:
 	QSplitter* left_right_splitter_;
 	XeroNTTreeWidget* nt_tree_;
 	XeroPlotTreeWidget *plot_tree_;
+	ImageWidgetList* image_list_;
 	QTabWidget* board_tab_;
 	QTabWidget* select_tab_;
 	nt::NetworkTableInstance inst_;

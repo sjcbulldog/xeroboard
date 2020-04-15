@@ -4,6 +4,7 @@
 #include "XeroPlotItemWidget.h"
 #include "XeroBoardMainWindow.h"
 #include "Plot.h"
+#include "ImageWidget.h"
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
 #include <QDragMoveEvent>
@@ -14,6 +15,7 @@
 #include <QMessageBox>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QApplication>
 #include <algorithm>
 #include <cassert>
 
@@ -209,6 +211,17 @@ void XeroBoardWidget::dropVariable(QString node, QPoint pt)
 	}
 }
 
+void XeroBoardWidget::dropImage(QString node, QPoint pt)
+{
+	auto image = main_->getCustomImageManager().get(node);
+	if (image != nullptr) {
+		ImageWidget* item = new ImageWidget(image, pt, this);
+		display_widgets_.push_back(item);
+		item->setVisible(true);
+		main_->setDirty(true);
+	}
+}
+
 void XeroBoardWidget::dropPlot(QString key, QPoint pt)
 {
 	QRect r(pt, QSize(512, 384));
@@ -248,12 +261,22 @@ void XeroBoardWidget::dropEvent(QDropEvent* ev)
 	{
 		QString node = QString::fromUtf8(data->data(textMimeType));
 
-		if (node.length() > 3 && node.mid(0, 4) == "var:")
+		if (node.startsWith("var:"))
+		{
 			dropVariable(node.mid(4), ev->pos());
-		else if (node.length() > 4 && node.mid(0, 5) == "plot:")
+		}
+		else if (node.startsWith("plot:"))
+		{
 			dropPlot(node.mid(5), ev->pos());
-		else if (node.length() > 7 && node.mid(0, 8) == "plotvar:")
+		}
+		else if (node.startsWith("plotvar:"))
+		{
 			dropPlotVar(node.mid(8), ev->pos());
+		}
+		else if (node.startsWith("image:"))
+		{
+			dropImage(node.mid(6), ev->pos());
+		}
 	}
 	setBackgroundRole(QPalette::Background);
 }

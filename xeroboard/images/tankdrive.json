@@ -6,9 +6,9 @@
     {
       "type": "text",
       "name": "heading",
-      "x": 122,
+      "x": 124,
       "y": 4,
-      "width": 210,
+      "width": 212,
       "height": 32
     },
     {
@@ -24,21 +24,21 @@
       "name": "leftvel",
       "x": 6,
       "y": 136,
-      "width": 122,
-      "height": 32
-    },
-    {
-      "type": "text",
-      "name": "rightpos",
-      "x": 338,
-      "y": 92,
       "width": 112,
       "height": 32
     },
     {
       "type": "text",
+      "name": "rightpos",
+      "x": 342,
+      "y": 92,
+      "width": 122,
+      "height": 32
+    },
+    {
+      "type": "text",
       "name": "rightvel",
-      "x": 338,
+      "x": 342,
       "y": 136,
       "width": 122,
       "height": 32

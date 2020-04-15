@@ -8,16 +8,15 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QRect>
+#include <QImage>
 #include <QDebug>
 
 CustomImageMgr::CustomImageMgr()
 {
-
 }
 
 CustomImageMgr::~CustomImageMgr()
 {
-
 }
 
 bool CustomImageMgr::init()
@@ -33,6 +32,9 @@ bool CustomImageMgr::init()
 		auto im = parse(json) ;
 		if (im != nullptr)
 		{
+			QString imfile = exedir + "/" + im->imageFile();
+			QImage image(imfile);
+			im->setImage(image);
 			images_.insert(im->name(), im);
 		}
 	}
@@ -44,7 +46,6 @@ std::shared_ptr<CustomImage> CustomImageMgr::parse(QFile& file)
 {
 	QString text;
 	std::shared_ptr<CustomImage> ret;
-
 
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
@@ -100,7 +101,7 @@ std::shared_ptr<CustomImage> CustomImageMgr::parse(QFile& file)
 
 	if (!obj[ImageTag].isString())
 	{
-		qWarning() << "JSON file '" << file.fileName() << " has a 'images' field, but it is not a string";
+		qWarning() << "JSON file '" << file.fileName() << " has a 'image' field, but it is not a string";
 		return nullptr;
 	}
 

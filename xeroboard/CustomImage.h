@@ -45,7 +45,13 @@ public:
 		return image_file_;
 	}
 
-	QImage image();
+	const QImage &image() {
+		return image_;
+	}
+
+	void setImage(const QImage& image) {
+		image_ = image;
+	}
 
 	void addSlot(QString name, QString type, QRect bounds)
 	{

@@ -35,6 +35,7 @@ private:
 	static constexpr const char* SlotYTag = "y";
 	static constexpr const char* SlotWidthTag = "width";
 	static constexpr const char* SlotHeightTag = "height";
+	static constexpr const char* SlotAlignment = "alignment";
 
 private:
 	std::shared_ptr<CustomImage> parse(QFile& file);

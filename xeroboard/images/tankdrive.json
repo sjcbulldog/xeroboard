@@ -9,7 +9,8 @@
       "x": 124,
       "y": 4,
       "width": 212,
-      "height": 32
+      "height": 32,
+      "alignment": "center"
     },
     {
       "type": "text",
@@ -17,7 +18,8 @@
       "x": 6,
       "y": 92,
       "width": 112,
-      "height": 32
+      "height": 32,
+      "alignment": "right"
     },
     {
       "type": "text",
@@ -25,7 +27,8 @@
       "x": 6,
       "y": 136,
       "width": 112,
-      "height": 32
+      "height": 32,
+      "alignment": "right"
     },
     {
       "type": "text",
@@ -33,7 +36,8 @@
       "x": 342,
       "y": 92,
       "width": 122,
-      "height": 32
+      "height": 32,
+      "alignment": "left"
     },
     {
       "type": "text",
@@ -41,7 +45,8 @@
       "x": 342,
       "y": 136,
       "width": 122,
-      "height": 32
+      "height": 32,
+      "alignment": "left"
     }
   ]
 }

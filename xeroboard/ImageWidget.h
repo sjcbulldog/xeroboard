@@ -22,9 +22,11 @@ protected:
 	virtual void dragMoveEvent(QDragMoveEvent* ev);
 	virtual void dragLeaveEvent(QDragLeaveEvent* ev);
 	virtual void dropEvent(QDropEvent* ev);
+	virtual void contextMenuEvent(QContextMenuEvent* ev);
 
 private:
 	int findSlotByPoint(const QPoint& pt);
+	void changeFont();
 
 private:
 	static constexpr int LeftRightImBoundary = 4;
@@ -34,5 +36,6 @@ private:
 	std::shared_ptr<CustomImage> image_;
 	bool has_cursor_;
 	std::vector<std::shared_ptr<SingleDataSource>> sources_;
+	QFont font_;
 };
 

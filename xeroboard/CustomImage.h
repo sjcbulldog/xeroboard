@@ -13,21 +13,31 @@ public:
 	class CustomImageSlot
 	{
 	public:
-		CustomImageSlot(QString name, QString type, QRect bounds)
+		enum class Alignment {
+			Left,
+			Center,
+			Right
+		};
+
+	public:
+		CustomImageSlot(QString name, QString type, QRect bounds, Alignment a)
 		{
 			name_ = name;
 			type_ = type;
 			bounds_ = bounds;
+			alignment_ = a;
 		}
 
 		const QString& name() { return name_; }
 		const QString& type() { return type_; }
 		const QRect& bounds() { return bounds_; }
+		Alignment alignment() { return alignment_; }
 
 	private:
 		QString name_;
 		QString type_;
 		QRect bounds_;
+		Alignment alignment_;
 	};
 
 public:
@@ -53,9 +63,9 @@ public:
 		image_ = image;
 	}
 
-	void addSlot(QString name, QString type, QRect bounds)
+	void addSlot(QString name, QString type, QRect bounds, CustomImageSlot::Alignment a)
 	{
-		CustomImageSlot slot(name, type, bounds);
+		CustomImageSlot slot(name, type, bounds, a);
 		slots_.push_back(slot);
 	}
 

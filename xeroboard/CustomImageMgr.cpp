@@ -149,6 +149,7 @@ std::shared_ptr<CustomImage> CustomImageMgr::parse(QFile& file)
 			return nullptr;
 		}
 
+
 		if (!sobj[SlotYTag].isDouble())
 		{
 			qWarning() << "JSON file '" << file.fileName() << " in slots array, index " << i << ", has 'y' field, but it is not a number";
@@ -197,9 +198,15 @@ std::shared_ptr<CustomImage> CustomImageMgr::parse(QFile& file)
 			return nullptr;
 		}
 
-		if (!sobj[SlotTypeTag].isString())
+		if (!sobj.contains(SlotAlignment))
 		{
-			qWarning() << "JSON file '" << file.fileName() << " in slots array, index " << i << ", has 'type' field, but it is not a string";
+			qWarning() << "JSON file '" << file.fileName() << " in slots array, index " << i << ", does not have 'alignment' field";
+			return nullptr;
+		}
+
+		if (!sobj[SlotAlignment].isString())
+		{
+			qWarning() << "JSON file '" << file.fileName() << " in slots array, index " << i << ", has 'alignment' field, but it is not a string";
 			return nullptr;
 		}
 
@@ -210,7 +217,15 @@ std::shared_ptr<CustomImage> CustomImageMgr::parse(QFile& file)
 		int width = static_cast<int>(sobj[SlotWidthTag].toInt());
 		int height = static_cast<int>(sobj[SlotHeightTag].toInt());
 		QRect bounds(x, y, width, height);
-		ret->addSlot(sname, stype, bounds);
+		CustomImage::CustomImageSlot::Alignment a = CustomImage::CustomImageSlot::Alignment::Left;
+		QString align = sobj[SlotAlignment].toString();
+		if (align == "right")
+			a = CustomImage::CustomImageSlot::Alignment::Right;
+		else if (align == "left")
+			a = CustomImage::CustomImageSlot::Alignment::Left;
+		else if (align == "center")
+			a = CustomImage::CustomImageSlot::Alignment::Center;
+		ret->addSlot(sname, stype, bounds, a);
 	}
 
 	return ret;

@@ -5,6 +5,9 @@
 #include <QDragLeaveEvent>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QMenu>
+#include <QAction>
+#include <QFontDialog>
 
 ImageWidget::ImageWidget(std::shared_ptr<CustomImage> image, const QPoint& loc, QWidget* parent) : XeroDisplayWidget(parent)
 {
@@ -22,6 +25,8 @@ ImageWidget::ImageWidget(std::shared_ptr<CustomImage> image, const QPoint& loc, 
 
 	for (int i = 0; i < image->slotCount(); i++)
 		sources_.push_back(nullptr);
+
+	font_ = font();
 }
 
 ImageWidget::~ImageWidget()
@@ -95,18 +100,33 @@ void ImageWidget::paintEvent(QPaintEvent* ev)
 	p.drawImage(r, image_->image());
 
 	p.save();
-	QBrush brush(QColor(0, 0, 255, 255));
-	p.setBrush(brush);
+	p.setFont(font_);
+	QFontMetrics fm(p.font());
+
+	QBrush txtbrush(QColor(0, 0, 255, 255));
+	QBrush emptybrush(QColor(212, 212, 212, 255));
+
 	QPen pen(QColor(0, 0, 255, 255));
-	p.setPen(pen);
+
 	for (int i = 0; i < image_->slotCount(); i++) {
+		auto slot = image_->slot(i);
+		r = QRect(xoff + slot.bounds().x(), yoff + slot.bounds().y(), slot.bounds().width(), slot.bounds().height());
+
 		if (sources_[i] != nullptr) {
-			auto slot = image_->slot(i);
+			p.setBrush(txtbrush);
+			p.setPen(pen);
 			QString txt = sources_[i]->value().toString();
-			r = QRect(xoff + slot.bounds().x(), yoff + slot.bounds().y(), slot.bounds().width(), slot.bounds().height());
-			p.drawText(r, txt);
+			if (slot.alignment() == CustomImage::CustomImageSlot::Alignment::Right)
+				p.drawText(r, Qt::AlignRight | Qt::AlignVCenter, txt);
+			else if (slot.alignment() == CustomImage::CustomImageSlot::Alignment::Center)
+				p.drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, txt);
+			else 
+				p.drawText(r, Qt::AlignLeft | Qt::AlignVCenter, txt);
 		}
 		else {
+			p.setBrush(emptybrush);
+			p.setPen(Qt::PenStyle::NoPen);
+			p.drawRect(r);
 		}
 	}
 	p.restore();
@@ -152,6 +172,24 @@ void ImageWidget::dropNode(std::shared_ptr<SingleDataSource> src, QPoint pt)
 	}
 	else {
 	}
+}
+
+void ImageWidget::contextMenuEvent(QContextMenuEvent* ev)
+{
+	QMenu menu(this);
+	QAction* act = new QAction("Change Font");
+	menu.addAction(act);
+	connect(act, &QAction::triggered, this, &ImageWidget::changeFont);
+	menu.exec(ev->globalPos());
+}
+
+void ImageWidget::changeFont()
+{
+	bool ok;
+
+	QFont newfont = QFontDialog::getFont(&ok, font(), this);
+	if (ok)
+		font_ = newfont;
 }
 
 void ImageWidget::createJSON(QJsonObject& obj)

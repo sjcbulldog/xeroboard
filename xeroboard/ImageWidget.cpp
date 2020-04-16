@@ -115,7 +115,7 @@ void ImageWidget::paintEvent(QPaintEvent* ev)
 		if (sources_[i] != nullptr) {
 			p.setBrush(txtbrush);
 			p.setPen(pen);
-			QString txt = sources_[i]->value().toString();
+			QString txt = "HELLO"; // TODO
 			if (slot.alignment() == CustomImage::CustomImageSlot::Alignment::Right)
 				p.drawText(r, Qt::AlignRight | Qt::AlignVCenter, txt);
 			else if (slot.alignment() == CustomImage::CustomImageSlot::Alignment::Center)

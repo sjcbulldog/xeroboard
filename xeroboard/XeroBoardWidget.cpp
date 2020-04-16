@@ -1,6 +1,5 @@
  #include "XeroBoardWidget.h"
 #include "XeroSingleItemWidget.h"
-#include "XeroMultiItemWidget.h"
 #include "XeroPlotItemWidget.h"
 #include "XeroBoardMainWindow.h"
 #include "Plot.h"
@@ -90,10 +89,7 @@ void XeroBoardWidget::createWidget(const QJsonObject& obj)
 
 	QString type = child["type"].toString();
 
-	if (type == "single")
-		createSingle(child, r);
-	else if (type == "multiple")
-		createMultiple(child, r);
+	createSingle(child, r);
 }
 
 void XeroBoardWidget::createSingle(const QJsonObject& desc, const QRect& r)
@@ -104,28 +100,8 @@ void XeroBoardWidget::createSingle(const QJsonObject& desc, const QRect& r)
 		throw err;
 	}
 	QString source = desc["source"].toString();
-
-	XeroSingleItemWidget* item = new XeroSingleItemWidget(source.toStdString(), r.topLeft(), this);
-	item->setGeometry(r);
-	display_widgets_.push_back(item);
-	item->setVisible(true);
-}
-
-void XeroBoardWidget::createMultiple(const QJsonObject& desc, const QRect& r)
-{
-	if (!desc.contains("sources") || !desc["sources"].isArray())
-	{
-		std::runtime_error err("item single child descriptor does not contain valid 'sources' member");
-		throw err;
-	}
-	QJsonArray sources = desc["sources"].toArray();
-	XeroMultiItemWidget *item = new XeroMultiItemWidget(r, this);
-
-	for (int i = 0; i < sources.size(); i++) {
-		if (sources[i].isString())
-			item->addSource(sources[i].toString().toStdString(), false);
-	}
-
+	std::shared_ptr<SingleDataSource> src = std::make_shared<SingleDataSource>(source.toStdString());
+	XeroSingleItemWidget* item = new XeroSingleItemWidget(src, this);
 	item->setGeometry(r);
 	display_widgets_.push_back(item);
 	item->setVisible(true);
@@ -183,49 +159,15 @@ void XeroBoardWidget::dragLeaveEvent(QDragLeaveEvent* ev)
 
 void XeroBoardWidget::dropVariable(QString node, QPoint pt)
 {
-	for (auto w : display_widgets_)
-	{
-		QRect r = w->geometry();
-		if (r.contains(pt))
-		{
-			ImageWidget* imw = dynamic_cast<ImageWidget*>(w);
-			if (imw != nullptr)
-			{
-				dropOnImage(imw, node.toStdString(), pt);
-				return;
-			}
+	std::shared_ptr<SingleDataSource> src = std::make_shared<SingleDataSource>(node.toStdString());
+	XeroSingleItemWidget* item = new XeroSingleItemWidget(src, this);
+	display_widgets_.push_back(item);
 
-			XeroSingleItemWidget* sw = dynamic_cast<XeroSingleItemWidget*>(w);
-			if (sw != nullptr)
-			{
-				dropOnSingle(sw, node.toStdString(), pt);
-				return;
-			}
+	QRect r(pt.x(), pt.y(), item->width(), item->height());
+	item->setGeometry(r);
 
-			XeroMultiItemWidget* mw = dynamic_cast<XeroMultiItemWidget*>(w);
-			if (mw != nullptr)
-			{
-				dropOnMulti(mw, node.toStdString(), pt);
-				return;
-			}
-
-			return;
-		}
-	}
-
-	SingleDataSource* src = new SingleDataSource(node.toStdString());
-	if (src->isSubtable())
-	{
-		QMessageBox::warning(this, "Error", "Cannot display complete table, select a single value.");
-		delete src;
-	}
-	else
-	{
-		XeroSingleItemWidget* item = new XeroSingleItemWidget(node.toStdString(), pt, this);
-		display_widgets_.push_back(item);
-		item->setVisible(true);
-		main_->setDirty(true);
-	}
+	item->setVisible(true);
+	main_->setDirty(true);
 }
 
 void XeroBoardWidget::dropImage(QString node, QPoint pt)
@@ -304,32 +246,6 @@ void XeroBoardWidget::removeChild(XeroDisplayWidget *widget)
 	assert(it != display_widgets_.end());
 
 	display_widgets_.erase(it);
-}
-
-void XeroBoardWidget::dropOnSingle(XeroSingleItemWidget* sw, const std::string& newnode, QPoint pt)
-{
-	QRect r = sw->geometry();
-	XeroMultiItemWidget* neww = new XeroMultiItemWidget(r, this);
-	neww->addSource(sw->takeSource(), false);
-	sw->close();
-
-	neww->addSource(newnode, true);
-	display_widgets_.push_back(neww);
-	neww->setVisible(true);
-	main_->setDirty(true);
-}
-
-void XeroBoardWidget::dropOnMulti(XeroMultiItemWidget *mw, const std::string &newnode, QPoint pt)
-{
-	mw->addSource(newnode, false);
-	main_->setDirty(true);
-}
-
-void XeroBoardWidget::dropOnImage(ImageWidget* imw, const std::string& newnode, QPoint pt)
-{
-	QPoint npt(pt.x() - imw->x(), pt.y() - imw->y());
-	std::shared_ptr<SingleDataSource> src = std::make_shared<SingleDataSource>(newnode);
-	imw->dropNode(src, pt);
 }
 
 void XeroBoardWidget::selectWidget(XeroDisplayWidget* w, bool replace)

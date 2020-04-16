@@ -70,11 +70,6 @@ private:
 	void createWidget(const QJsonObject &obj);
 	QRect parseGeometry(const QJsonObject& obj);
 	void createSingle(const QJsonObject& desc, const QRect& geom);
-	void createMultiple(const QJsonObject& desc, const QRect& geom);
-
-	void dropOnSingle(XeroSingleItemWidget* w, const std::string& newnode, QPoint pt);
-	void dropOnMulti(XeroMultiItemWidget* w, const std::string& newnode, QPoint pt);
-	void dropOnImage(ImageWidget* w, const std::string& newnode, QPoint pt);
 
 private:
 	std::list<XeroDisplayWidget*> display_widgets_;

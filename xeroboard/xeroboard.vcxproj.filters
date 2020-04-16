@@ -49,25 +49,7 @@
     <ClCompile Include="SingleDataSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextDisplay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IDataDisplay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="XeroMultiItemWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TextListDisplay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ColorDisplay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TabEditName.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArrayDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="XeroPlotTreeWidget.cpp">
@@ -80,9 +62,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="XeroBoardMainWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ColorListDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Plot.cpp">
@@ -106,6 +85,12 @@
     <ClCompile Include="ImageWidgetList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SingleValueDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AggregrateDataSource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="XeroBoardWidget.h">
@@ -124,6 +109,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Plot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DataSource.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -145,24 +133,6 @@
     <ClInclude Include="XeroDisplayWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IDataDisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextDisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="XeroMultiItemWidget.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextListDisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ColorDisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArrayDisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="XeroPlotTreeWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -170,9 +140,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CustomImage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ColorListDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="XeroPlotItemWidget.h">
@@ -194,6 +161,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImageWidgetList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleValueDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AggregrateDataSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ValueDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

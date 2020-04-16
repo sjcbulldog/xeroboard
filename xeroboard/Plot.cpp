@@ -34,10 +34,10 @@ std::shared_ptr<PlotNode> Plot::getNode(const std::string& name)
 void Plot::populate()
 {
 	node_count_ = std::make_shared<SingleDataSource>("/XeroPlot/" + key_ + "/count");
-	node_count_conn_ = connect(node_count_.get(), &SingleDataSource::valueChanged, this, &Plot::countChanged);
+	node_count_conn_ = connect(node_count_.get(), &DataSource::valueChanged, this, &Plot::countChanged);
 
 	complete_ = std::make_shared<SingleDataSource>("/XeroPlot/" + key_ + "/complete");
-	complete_conn_ = connect(complete_.get(), &SingleDataSource::valueChanged, this, &Plot::completeChanged);
+	complete_conn_ = connect(complete_.get(), &DataSource::valueChanged, this, &Plot::completeChanged);
 
 	getAllData();
 }

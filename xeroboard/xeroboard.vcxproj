@@ -50,11 +50,11 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtInstall>msvc2017_64</QtInstall>
+    <QtInstall>msvc2017_64_5_14_2</QtInstall>
     <QtModules>charts;core;gui;widgets</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QtInstall>msvc2017_64</QtInstall>
+    <QtInstall>msvc2017_64_5_14_2</QtInstall>
     <QtModules>charts;core;gui;widgets</QtModules>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
@@ -120,27 +120,22 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AggregrateDataSource.cpp" />
     <ClCompile Include="ChartWrapper.cpp" />
-    <ClCompile Include="ColorDisplay.cpp" />
-    <ClCompile Include="ColorListDisplay.cpp" />
     <ClCompile Include="CustomImage.cpp" />
     <ClCompile Include="CustomImageMgr.cpp" />
-    <ClCompile Include="IDataDisplay.cpp" />
     <ClCompile Include="ImageWidget.cpp" />
     <ClCompile Include="ImageWidgetList.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NTValueWrapper.cpp" />
     <ClCompile Include="Plot.cpp" />
     <ClCompile Include="SingleDataSource.cpp" />
+    <ClCompile Include="SingleValueDisplay.cpp" />
     <ClCompile Include="TabEditName.cpp" />
-    <ClCompile Include="TextDisplay.cpp" />
-    <ClCompile Include="TextListDisplay.cpp" />
-    <ClCompile Include="ArrayDisplay.cpp" />
     <ClCompile Include="XeroBoardMainWindow.cpp" />
     <ClCompile Include="XeroBoardWidget.cpp" />
     <ClCompile Include="XeroDisplayWidget.cpp" />
     <ClCompile Include="XeroListWidget.cpp" />
-    <ClCompile Include="XeroMultiItemWidget.cpp" />
     <ClCompile Include="XeroNTTreeWidget.cpp" />
     <ClCompile Include="XeroPlotItemWidget.cpp" />
     <ClCompile Include="XeroPlotTreeWidget.cpp" />
@@ -154,26 +149,23 @@ copy $(SolutionDir)external\wpi\bin\$(Configuration)\*.dll $(OutDir)</Command>
     <QtRcc Include="xeroboard.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AggregrateDataSource.h" />
     <ClInclude Include="ChartWrapper.h" />
-    <ClInclude Include="ColorDisplay.h" />
     <ClInclude Include="build.h" />
-    <ClInclude Include="ColorListDisplay.h" />
     <ClInclude Include="CustomImage.h" />
     <ClInclude Include="CustomImageMgr.h" />
-    <ClInclude Include="IDataDisplay.h" />
+    <QtMoc Include="DataSource.h" />
     <ClInclude Include="ImageWidget.h" />
     <ClInclude Include="ImageWidgetList.h" />
     <ClInclude Include="NTValueWrapper.h" />
+    <ClInclude Include="SingleValueDisplay.h" />
+    <ClInclude Include="ValueDisplay.h" />
     <ClInclude Include="XeroTreeWidget.h" />
     <QtMoc Include="SingleDataSource.h" />
     <QtMoc Include="TabEditName.h" />
     <QtMoc Include="Plot.h" />
     <ClInclude Include="PlotNode.h" />
-    <ClInclude Include="TextDisplay.h" />
-    <ClInclude Include="TextListDisplay.h" />
-    <ClInclude Include="ArrayDisplay.h" />
     <ClInclude Include="XeroDisplayWidget.h" />
-    <ClInclude Include="XeroMultiItemWidget.h" />
     <ClInclude Include="XeroNTTreeWidget.h" />
     <ClInclude Include="XeroPlotItemWidget.h" />
     <ClInclude Include="XeroPlotTreeWidget.h" />

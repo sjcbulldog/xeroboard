@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron';
 import { NTConnection } from './nt4/NTConnection';
-import { join } from 'path' ;
+import path from 'path';
 
 export default class Main {
     static connection: NTConnection ;

@@ -1,9 +1,9 @@
 import { BrowserWindow } from 'electron';
-import { NTConnection } from './nt4/NTConnection';
+import { NTClient } from './nt4/NTClient';
 import path from 'path';
 
 export default class Main {
-    static connection: NTConnection ;
+    static client: NTClient ;
 
     static mainWindow: Electron.BrowserWindow;
     static application: Electron.App;
@@ -25,7 +25,7 @@ export default class Main {
             .loadURL('file://' + filename) ;
         Main.mainWindow.on('closed', Main.onClose);
 
-        this.connection = new NTConnection("ws://127.0.0.1:5810/") ;
+        this.client = new NTClient("ws://127.0.0.1:5810/") ;
     }
 
     static main(app: Electron.App, browserWindow: typeof BrowserWindow) {

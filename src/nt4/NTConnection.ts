@@ -14,6 +14,18 @@ export class NTConnection extends EventEmitter {
         this.sock_ = null ;
     }
 
+    public send(data: Uint8Array) : void {
+        if (this.sock_ !== null) {
+            this.sock_.send(data) ;
+        }
+    }
+
+    public sendJson(obj: Object) : void {
+        if (this.sock_ !== null) {
+            this.sock_.send(obj.toString());
+        }
+    }
+
     public isConnected() : boolean {
         return this.connected_ ;
     }
@@ -27,10 +39,10 @@ export class NTConnection extends EventEmitter {
             return ;
         
         this.sock_ = new WebSocket(this.addr_);
-        this.sock_.on('open', (ws: WebSocket) => { this.socketOpened(ws) ; }) ;
-        this.sock_.on('close', (ws: WebSocket, code: number, reason: Buffer) => { this.socketClosed(ws, code, reason) ; }) ;
-        this.sock_.on('error', (ws: WebSocket, err: Error) => { this.socketError(ws, err) ; }) ;
-        this.sock_.on('message', (ws: WebSocket, data: RawData, isBinary: boolean) => { this.socketMessage(ws, data, isBinary) ; }) ;
+        this.sock_.on('open', () => { this.socketOpened() ; }) ;
+        this.sock_.on('close', (code: number, reason: Buffer) => { this.socketClosed(code, reason) ; }) ;
+        this.sock_.on('error', (err: Error) => { this.socketError(err) ; }) ;
+        this.sock_.on('message', (data: RawData, isBinary: boolean) => { this.socketMessage(data, isBinary) ; }) ;
     }
 
     public disconnect() {
@@ -41,23 +53,23 @@ export class NTConnection extends EventEmitter {
         }
     }
 
-    private socketOpened(ws: WebSocket) : void {
+    private socketOpened() : void {
         this.connected_ = true ;
         this.emit('connected') ;
     }
 
-    private socketClosed(ws: WebSocket, code: number, reason: Buffer) : void {
+    private socketClosed(code: number, reason: Buffer) : void {
         this.connected_ = false ;
         this.sock_ = null ;
         
         this.emit('disconnected', code, reason) ;
     }
 
-    private socketError(ws: WebSocket, err: Error) : void {
+    private socketError(err: Error) : void {
         this.emit('error', err);
     }
 
-    private socketMessage(ws: WebSocket, data: RawData, isBinary: boolean) {
+    private socketMessage(data: RawData, isBinary: boolean) {
         if (isBinary) {
             this.emit('binary', data) ;
         }

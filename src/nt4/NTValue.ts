@@ -97,48 +97,48 @@ export class NTValue {
         return this.type_ == NTType.NT_BOOLEAN ;
     }     
 
-    public typeString() : string {
+    public static typeString(type: NTType) : string {
         let ret: string = "" ;
 
-        switch(this.type_) {
+        switch(type) {
             case NTType.NT_UNASSIGNED:
-                ret = "TypeUnassigned" ;
+                ret = "unassigned" ;
                 break ;
             case NTType.NT_BOOLEAN:
-                ret = "Boolean" ;
+                ret = "boolean" ;
                 break ;                
             case NTType.NT_DOUBLE:
-                ret = "Double" ;
+                ret = "double" ;
                 break ;                    
             case NTType.NT_STRING:
-                ret = "String" ;
+                ret = "string" ;
                 break ;                    
             case NTType.NT_RAW:
-                ret = "Raw" ;
+                ret = "raw" ;
                 break ;                    
             case NTType.NT_BOOLEAN_ARRAY:
-                ret = "BooleanArray" ;
+                ret = "boolean[]" ;
                 break ;                    
             case NTType.NT_DOUBLE_ARRAY:
-                ret = "DoubleArray" ;
+                ret = "double[]" ;
                 break ;                    
             case NTType.NT_STRING_ARRAY:
-                ret = "StringArray" ;
+                ret = "string[]" ;
                 break ;                    
             case NTType.NT_INTEGER:
-                ret = "Integer" ;
+                ret = "int" ;
                 break ;                    
             case NTType.NT_FLOAT:
-                ret = "Float" ;
+                ret = "float" ;
                 break ;                    
             case NTType.NT_INTEGER_ARRAY:
-                ret = "IntegerArray" ;
+                ret = "int[]" ;
                 break ;                    
             case NTType.NT_FLOAT_ARRAY:
-                ret = "FloatArray" ;
+                ret = "float[]" ;
                 break ;                  
             default:
-                ret = "InvalidValue" ;
+                ret = "invalid" ;
                 break ;
         }
 

@@ -6,3 +6,8 @@ export class NTSubscribeOptions
     public topicsonly?: boolean ;
     public prefix?: boolean ;
 }
+
+export class NTPublishOptions {
+    public persistent?: boolean ;
+    public retained?: boolean ;
+}

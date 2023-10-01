@@ -2,10 +2,12 @@ import { BrowserWindow } from 'electron';
 import path from 'path';
 import { NTMessageLogger, NTMessageType } from './nt4/NTMessageLogger';
 import { NTConsoleSink } from './nt4/NTConsoleSink';
-import { NetworkTableInstance } from './nt4/NetworkTableInstance';
+import { NTClient } from './nt4/NTClient';
+import { NTType, NTValue } from './nt4/NTValue';
+import { NTTopic } from './nt4/NTTopic';
 
 export default class Main {
-    static client: NetworkTableInstance ;
+    static client: NTClient ;
     static logger: NTMessageLogger ;
 
     static mainWindow: Electron.BrowserWindow;
@@ -27,17 +29,25 @@ export default class Main {
         Main.mainWindow.loadURL('file://' + filename) ;
         Main.mainWindow.on('closed', Main.onClose);
 
-        this.client = NetworkTableInstance.getDefault();
+        this.client = new NTClient( 'xeroboard', '127.0.0.1', 5810) ;
         let sink = new NTConsoleSink();
         this.client.getLogger().addSink(NTMessageType.Debug, sink) ;
         this.client.getLogger().addSink(NTMessageType.Info, sink) ;
         this.client.getLogger().addSink(NTMessageType.Warning, sink) ;
         this.client.getLogger().addSink(NTMessageType.Error, sink) ;
 
-        this.client.on('connected', () => { 
-            this.client.subscribe('', { prefix: true, topicsonly : true });
+        this.client.on("announce", (topic: NTTopic) => {
+            if (topic.name_ === "/xyzzy") {
+                const value: NTValue = new NTValue() ;
+                value.initString("Hello World");
+                this.client.setValue(topic, value) ;
+            }
         }) ;
-        this.client.setServer('xeroboard', '127.0.0.1', NetworkTableInstance.kDefaultPort4);
+
+        this.client.on('connected', () => {
+            this.client.subscribe(['/xyzzy'], { prefix: false, topicsonly: false });
+            const lid : number = this.client.publish('/xyzzy', NTType.NT_STRING);
+        }) ;
     }
 
     static main(app: Electron.App, browserWindow: typeof BrowserWindow) {

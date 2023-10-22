@@ -1,4 +1,12 @@
-import { app, BrowserWindow } from 'electron';
-import Main from './Main';
+import { simple } from './applets/simple/backend/simple';
+import { XeroApp } from './xeroboard/XeroApp' ;
 
-Main.main(app, BrowserWindow);
+const appid: string = 'xeroboard' ;
+const ntaddr: string = '127.0.0.1' ;
+const ntport: number = 5810 ;
+const restaddr: string = '127.0.0.1' ;
+const restport: number = -1 ;
+
+const ntapp = new XeroApp() ;
+ntapp.addApplet(new simple());
+ntapp.start(appid, ntaddr, ntport, restaddr, restport) ;

@@ -95,7 +95,7 @@ export class NTValue {
     
     public isBoolean() : boolean {
         return this.type_ == NTType.NT_BOOLEAN ;
-    }     
+    }
 
     public static typeString(type: NTType) : string {
         let ret: string = "" ;
@@ -228,7 +228,7 @@ export class NTValue {
     }     
 
     public unpack(data: any[], index: number) {
-        if (typeof data[0] !== 'number') {
+        if (typeof data[index] !== 'number') {
             throw new Error('unpack - invalid data for value type - not a number') ;
         }
 
@@ -369,5 +369,10 @@ export class NTValue {
                 throw new Error("NTValue.pack() - invalid value type") ;
                 break;
         }
+    }
+
+    public toString() : string {
+        let ret : string = this.value_.toString() ;
+        return ret ;
     }
 }

@@ -1,25 +1,10 @@
 import { NTBinaryMessage } from "./NTBinaryMessage";
 import { NTMessageLogger, NTMessageType } from "./NTMessageLogger";
 import { NTTopic } from "./NTTopic";
-
-class NTTopicNode {
-    public name_ : string ;
-    public children_ : NTTopicNode[] ;    // TODO: Convert to map to go faster?
-    public topic_ : NTTopic | null ;
-
-    constructor(name: string) {
-        this.name_ = name ;
-        this.children_ = [] ;
-        this.topic_ = null ;
-    }
-
-    public findChildByName(name: string) {
-        return this.children_.find((elem) => elem.name_ === name);
-    }
-}
+import { NTTopicNode } from "./NTTopicNode" ;
 
 export class NTTopicTree {
-    private top_ : NTTopicNode ;
+    public top_ : NTTopicNode ;
     private logger_ : NTMessageLogger ; 
     private topic_map_ : Map<number, NTTopic> ;
 
@@ -27,6 +12,10 @@ export class NTTopicTree {
         this.top_ = new NTTopicNode("");
         this.logger_ = logger ;
         this.topic_map_ = new Map<number, NTTopic>() ;        
+    }
+
+    public getTopics() : Iterable<NTTopic> {
+        return this.topic_map_.values() ;
     }
 
     public getTopicByName(name: string) : NTTopic | null {
@@ -65,8 +54,8 @@ export class NTTopicTree {
 
     private disableTopic(topic: NTTopic) {        
         topic.disabled() ;
-        if (this.topic_map_.has(topic.id_)) {
-            this.topic_map_.delete(topic.id_) ;
+        if (this.topic_map_.has(topic.subid_)) {
+            this.topic_map_.delete(topic.subid_) ;
         }
     }
 
@@ -108,13 +97,13 @@ export class NTTopicTree {
         }
     }
 
-    public add(name: string, id: number, pubid: number) : NTTopic {
+    public add(name: string, id: number, pubid: number, all: boolean) : NTTopic {
         let node: NTTopicNode = this.getTopicNodeFromName(name, true)! ;
 
-        const topic: NTTopic = new NTTopic(name, id, pubid) ;
+        const topic: NTTopic = new NTTopic(name, id, pubid, all) ;
         node.topic_ = topic ;
 
-        this.topic_map_.set(topic.id_, topic) ;
+        this.topic_map_.set(topic.subid_, topic) ;
 
         this.logger_.log(NTMessageType.Debug, "added topic '"+ name + "'");        
 
@@ -125,7 +114,7 @@ export class NTTopicTree {
         let ret: boolean = false ;
 
         if (this.topic_map_.has(msg.id_)) {
-            this.topic_map_.get(msg.id_)!.setValue(msg.timestamp_, msg.value_) ;
+            this.topic_map_.get(msg.id_)!.addValue(msg.timestamp_, msg.value_) ;
             ret = true ;
         }
 

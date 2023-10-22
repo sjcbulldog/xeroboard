@@ -1,6 +1,6 @@
 import { RawData } from "ws";
 import { NTConnection } from "./NTConnection";
-import { encode, decode, decodeMulti, decodeArrayStream } from '@msgpack/msgpack' ;
+import { encode, decodeMulti } from '@msgpack/msgpack' ;
 import { NTType, NTValue } from "./NTValue";
 import { NTBinaryMessage } from "./NTBinaryMessage";
 import { NTMessageLogger, NTMessageType } from "./NTMessageLogger";
@@ -9,8 +9,9 @@ import { EventEmitter } from 'node:events' ;
 import { NTPublishOptions, NTSubscribeOptions } from "./NTOptions";
 import { NTTopicTree } from "./NTTopicTree";
 import { NTLooseObject, NTTopic } from "./NTTopic";
+import { NTTopicNode } from "./NTTopicNode";
+import { clearInterval } from "node:timers";
 
-type ValueCallback = (msg: NTBinaryMessage) => void ;
 export class NTClient extends EventEmitter {
     private rtt_interval_ : number ;
     private connection_ : NTConnection ;
@@ -21,6 +22,8 @@ export class NTClient extends EventEmitter {
     private pubid_ : number ;
     private topics_ : NTTopicTree ;
     private connected_ : boolean ;
+    private interval_ : any | undefined ;
+    private all_topics_ : string[] ;
 
     private static kMinPeriodMs : number = 5 ;
 
@@ -38,14 +41,27 @@ export class NTClient extends EventEmitter {
         this.topics_ = new NTTopicTree(this.logger_) ;
         this.connected_ = false ;
         this.rtt_interval_ = 2000 ;
+        this.interval_ = undefined ;
+        this.all_topics_ = [] ;
 
         this.connection_.on('connected', () => { this.connected() ; });
         this.connection_.on('disconnected', (code: number, reason: Buffer) => { this.disconnected(code, reason) ; });
         this.connection_.on('error', (err: Error) => { this.error(err) ; });
         this.connection_.on('binary', (data: RawData) => { this.binaryMessage(data)}) ;
         this.connection_.on('json', (obj: Object) => { this.jsonMessage(obj)}) ;
+    }
 
+    public connect() {
         this.connection_.connect() ;
+
+    }
+
+    public getTopics() : Iterable<NTTopic> {
+        return this.topics_.getTopics() ;
+    }
+
+    public getTop() : NTTopicNode {
+        return this.topics_.top_ ;
     }
 
     public getLogger() : NTMessageLogger {
@@ -84,6 +100,15 @@ export class NTClient extends EventEmitter {
 
         const str = JSON.stringify([obj]) ;
         this.connection_.sendJson(str) ;
+
+        if (options !== undefined && options.all) {
+            for(let topic of topics) {
+                if (this.all_topics_.indexOf(topic) === -1) {
+                    this.all_topics_.push(topic);
+                }
+
+            }
+        }
 
         return ret ;
     }
@@ -150,6 +175,8 @@ export class NTClient extends EventEmitter {
 
     private connected() : void {
         this.logger_.log(NTMessageType.Info, "connected to NT server");
+
+        this.interval_ = setInterval(() => { this.sendRTTPing() ; }, this.rtt_interval_);
         this.sendRTTPing() ;
     }
     
@@ -172,6 +199,12 @@ export class NTClient extends EventEmitter {
 
     private disconnected(code: number, reason: Buffer) : void {
         this.logger_.log(NTMessageType.Error, "server disconnected: code %d, reason '%s'", code, reason.toString());
+
+        if (this.interval_ !== undefined) {
+            clearInterval(this.interval_) ;
+            this.interval_ = undefined ;
+        }
+        
         this.connected_ = false ;
         this.connection_.connect();
     }    
@@ -211,7 +244,7 @@ export class NTClient extends EventEmitter {
                         this.connected_ = true ;
                     }
 
-                    setInterval(() => { this.sendRTTPing() ; }, this.rtt_interval_);
+
                 }
                 else {
                     this.logger_.log(NTMessageType.Warning, "received RTT packet with non-integer payload - type '%s'", 
@@ -247,6 +280,10 @@ export class NTClient extends EventEmitter {
         return true ;
     }
 
+    private isAllTopic(topic: string) {
+        return this.all_topics_.indexOf(topic) !== -1 ;
+    }
+
     private handleOneJSONMessage(obj: Object) {
         const method = obj['method'] ;
         if (method === undefined) {
@@ -272,7 +309,7 @@ export class NTClient extends EventEmitter {
                 pubuid = params['pubuid'] as number ;
             }
 
-            let topic: NTTopic = this.topics_.add(params['name'], params['id'], pubuid) ;
+            let topic: NTTopic = this.topics_.add(params['name'], params['id'], pubuid, this.isAllTopic(params['name'])) ;
 
             if (params['properties'] !== undefined) {
                 topic.addProps(params['properties']) ;

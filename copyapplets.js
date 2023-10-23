@@ -15,43 +15,40 @@ if (!fs.existsSync(basedir)) {
 
 function copyApplet(applet) {
     let fullpath = path.join(basedir, applet) ;
+    let destpath = path.join(destdir, applet) ;
 
     console.log("  Processing applet '" + applet + "'");
-    fs.rmSync(fullpath, { recursive : true, force : true});
-    if (fs.existsSync(fullpath)) {
-        console.log("    Cannot remove '" + applet + "' - dir '" + fullpath + "'");
+    fs.rmSync(destpath, { recursive : true, force : true});
+    if (fs.existsSync(destpath)) {
+        console.log("    Cannot remove '" + applet + "' - dir '" + destpath + "'");
         process.exit(1);
     }
 
-    fs.readdir(fullpath, (err, files) => {
-        if (err) {
-            console.log("Cannot process applet '" + applet + "' - " + err);
-            retrurn ;
+    files = fs.readdirSync(fullpath);
+    for(let file of files) {
+        if (file === 'backend' || file === 'frontend') {
+            //
+            // These directories are type scripts and are handled independently
+            // 
+            continue ;
         }
 
-        for(let file of files) {
-            if (file === 'backend' || file === 'frontend') {
-                //
-                // These directories are type scripts and are handled independently
-                // 
-                continue ;
-            }
-
-            try {
-                fse.copySync(srcdir, destdir) ;
-            }
-            catch(err) {
-                console.log("Cannot process applet '" + applet + "' : directory '" + file + "' - " + err);
-                process.exit(1);
-            }
+        let srcdir = path.join(fullpath, file) ;
+        let dest = path.join(destpath, file) ;
+        try {
+            fse.copySync(srcdir, dest) ;
         }
-    }) ;
+        catch(err) {
+            console.log("Cannot process applet '" + applet + "' : directory '" + file + "' - " + err);
+            process.exit(1);
+        }
+    }
 
-    srcpath = path.join(builddir, applet, 'frontend');
-    destpath = path.join(fullpath, applet, 'js');
-        if (fs.existsSync(srcpath)) {
+    let srcdir = path.join(builddir, applet, 'frontend');
+    let dest = path.join(destpath, 'js');
+    if (fs.existsSync(srcdir)) {
         try { 
-            fse.copySync(srcpath, destpath, (src, dest) => { 
+            fse.copySync(srcdir, dest, (src, dest) => { 
                 return path.extname(src) === ".js"  || fs.lstatSync(src).isDirectory();
             });
         }
@@ -66,11 +63,7 @@ function copyApplet(applet) {
 }
 
 function copyAll() {
-
     let files = fs.readdirSync(basedir) ;
-    console.log("basedir: " + basedir);
-    console.log("files: " + files);
-
     console.log("Copying applet files");
     for(let file of files) {
         copyApplet(file) ;

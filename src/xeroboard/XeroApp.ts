@@ -30,25 +30,21 @@ export class XeroApp {
         });
 
         app.on('ready', () => {
-            this.connectNetworkTables(appid, ntaddr, ntport) ;
-            this.startLocalServer(restaddr, restport);
-
-            for(let applet of this.applets) {
-                applet.start(this.nettables!, this.server);
+            if (restport === -1) {
+                restport = this.createRestPort() ;
             }
+            this.server = new express() ;
+            this.server.listen(restport, restaddr, 4, () => {
+                this.createNetworkTablesClient(appid, ntaddr, ntport) ;
+            }) ;
         });
     }
 
     public startLocalServer(restaddr: string, restport: number) : boolean {
-        if (restport === -1) {
-            restport = this.createRestPort() ;
-        }
-        this.server = new express() ;
-        this.server.listen(restport, restaddr, 4, () => {});
         return true;
     }
 
-    private connectNetworkTables(appid: string, ntaddr: string, ntport: number) : boolean {
+    private createNetworkTablesClient(appid: string, ntaddr: string, ntport: number) : boolean {
         if (this.nettables) {
             this.nettables.close() ;
             this.nettables = null ;
@@ -60,6 +56,14 @@ export class XeroApp {
         this.nettables.getLogger().addSink(NTMessageType.Info, sink) ;
         this.nettables.getLogger().addSink(NTMessageType.Warning, sink) ;
         this.nettables.getLogger().addSink(NTMessageType.Error, sink) ;
+
+        this.nettables.connect() ;
+
+        this.nettables!.on('connected', () => {
+            for(let applet of this.applets) {
+                applet.start(this.nettables!, this.server!);
+            }
+        }) ;
 
         return true ;
     }

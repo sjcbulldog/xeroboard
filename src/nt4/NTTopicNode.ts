@@ -28,6 +28,10 @@ export class NTTopicNode {
         return this.hasValue ? NTValue.typeString(this.topic_!.getValue()!.value.type_) : "" ;
     }   
 
+    public get name() : string {
+        return this.name_ ;
+    }
+
     public findChildByName(name: string) {
         return this.children_.find((elem) => elem.name_ === name);
     }

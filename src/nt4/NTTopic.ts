@@ -45,6 +45,19 @@ export class NTTopic extends EventEmitter {
         }
     }
 
+    public setAllTopics() {
+        if (!this.allvalues_) {
+            this.allvalues_ = true ;
+            if (this.value_) {
+                const v: NTValue = this.value_ as NTValue ;
+                const t: number = this.timestamp_ as number ;
+
+                this.value_ = null ;
+                this.addValue(t, v);
+            }
+        }
+    }
+
     public addValue(timestamp: number, value: NTValue) : void {
         if (this.allvalues_) {
             if (this.value_ === null) {

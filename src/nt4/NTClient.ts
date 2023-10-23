@@ -53,7 +53,6 @@ export class NTClient extends EventEmitter {
 
     public connect() {
         this.connection_.connect() ;
-
     }
 
     public getTopics() : Iterable<NTTopic> {
@@ -104,9 +103,17 @@ export class NTClient extends EventEmitter {
         if (options !== undefined && options.all) {
             for(let topic of topics) {
                 if (this.all_topics_.indexOf(topic) === -1) {
-                    this.all_topics_.push(topic);
+                    let topicobj: NTTopic | null = this.topics_.getTopicByName(topic) ;
+                    if (topicobj) {
+                        topicobj.setAllTopics() ;
+                    }
+                    else {
+                        //
+                        // Store this for when an annoucement message is seen
+                        //
+                        this.all_topics_.push(topic);
+                    }
                 }
-
             }
         }
 

@@ -29,7 +29,7 @@ export class XeroApplet {
                 }
             }) ;
             
-        let docurl = "http://127.0.0.1:9000/simple/html/simple.html" ;
+        let docurl = "http://127.0.0.1:9000/" + this.getName() + "/html/" + this.getName() + ".html" ;
         this.window.loadURL(docurl);
 
         this.setupServerPaths() ;

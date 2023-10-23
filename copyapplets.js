@@ -6,66 +6,50 @@ let process = require('process');
 const basedir = path.join(__dirname, 'src', 'applets');
 const destdir = path.join(__dirname, 'content', 'applets');
 const builddir = path.join(__dirname, 'build', 'applets') ;
+let count = 0 ;
 
 if (!fs.existsSync(basedir)) {
     console.log("The applet directory '" + basedir + "' does not exist") ;
     process.exit(1);
 }
 
-console.log("Copying applet files");
-fs.readdir(basedir, (err, files) => { 
-    if (err) {
-        console.log("Cannot process applets: " + err);
-        retrurn ;
+function copyApplet(applet) {
+    let fullpath = path.join(basedir, applet) ;
+
+    console.log("  Processing applet '" + applet + "'");
+    fs.rmSync(fullpath, { recursive : true, force : true});
+    if (fs.existsSync(fullpath)) {
+        console.log("    Cannot remove '" + applet + "' - dir '" + fullpath + "'");
+        process.exit(1);
     }
 
-    let count = 0 ;
-    for(let file of files) {
-        console.log("  Processing applet '" + file + "'");
-        const destapplet = path.join(destdir, file) ;
-        fs.rmSync(destapplet, { recursive : true, force : true});
-        if (fs.existsSync(destapplet)) {
-            console.log("    Cannot remove directory '" + destapplet + "'");
-            process.exit(1);
+    fs.readdir(fullpath, (err, files) => {
+        if (err) {
+            console.log("Cannot process applet '" + applet + "' - " + err);
+            retrurn ;
         }
 
-        //
-        // Copy HTML files
-        //
-        let srcpath = path.join(basedir, file, 'html');
-        let destpath = path.join(destdir, file, 'html');
-        try { 
-            fse.copySync(srcpath, destpath);
-        }
-        catch(err) {
-            console.log("    Cannot copy HTML files: " + err);
-            console.log("      src: " + srcpath) ;
-            console.log("      dest: " + destpath + "'");
-            process.exit(1);
-        }
+        for(let file of files) {
+            if (file === 'backend' || file === 'frontend') {
+                //
+                // These directories are type scripts and are handled independently
+                // 
+                continue ;
+            }
 
-        //
-        // Copy JS files
-        //
-        srcpath = path.join(basedir, file, 'frontend');
-        destpath = path.join(destdir, file, 'js');
-        try { 
-            fse.copySync(srcpath, destpath, (src, dest) => { 
-                return path.extname(src) === ".js" || fs.lstatSync(src).isDirectory();
-            });
+            try {
+                fse.copySync(srcdir, destdir) ;
+            }
+            catch(err) {
+                console.log("Cannot process applet '" + applet + "' : directory '" + file + "' - " + err);
+                process.exit(1);
+            }
         }
-        catch(err) {
-            console.log("    Cannot copy JavaScript files: " + err);
-            console.log("      src: " + srcpath) ;
-            console.log("      dest: " + destpath + "'");
-            process.exit(1);
-        }
+    }) ;
 
-        //
-        // Copy built TS files
-        //
-        srcpath = path.join(builddir, file, 'frontend');
-        destpath = path.join(destdir, file, 'js');
+    srcpath = path.join(builddir, applet, 'frontend');
+    destpath = path.join(fullpath, applet, 'js');
+        if (fs.existsSync(srcpath)) {
         try { 
             fse.copySync(srcpath, destpath, (src, dest) => { 
                 return path.extname(src) === ".js"  || fs.lstatSync(src).isDirectory();
@@ -76,15 +60,28 @@ fs.readdir(basedir, (err, files) => {
             console.log("      src: " + srcpath) ;
             console.log("      dest: " + destpath + "'");
             process.exit(1);
-        }        
-
-        count++ ;
+        }
     }
+    count++ ;
+}
 
-    if (count === 0) {
-        console.log("No applets were copied sucessfully") ;
-        process.exit(1);
-    } else {
-        console.log(count + " applets were processed");
+function copyAll() {
+
+    let files = fs.readdirSync(basedir) ;
+    console.log("basedir: " + basedir);
+    console.log("files: " + files);
+
+    console.log("Copying applet files");
+    for(let file of files) {
+        copyApplet(file) ;
     }
-}) ;
+}
+
+copyAll() ;
+
+if (count === 0) {
+    console.log("No applets were copied sucessfully") ;
+    process.exit(1);
+} else {
+    console.log(count + " applets were processed");
+}

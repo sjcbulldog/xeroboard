@@ -29,8 +29,10 @@ export class XeroApplet {
                 }
             }) ;
             
-        const docurl = path.join(this.getContentDir(), 'html', this.getName() + ".html");
+        let docurl = "http://127.0.0.1:9000/simple/html/simple.html" ;
         this.window.loadURL(docurl);
+
+        this.setupServerPaths() ;
     }
 
     public getName() : string {
@@ -47,5 +49,24 @@ export class XeroApplet {
 
     protected getContentDir() : string {
         return path.join(__dirname, '..', '..', 'content', 'applets', this.getName());
+    }
+
+    private setupServerPaths() : void {
+        const name = '/' + this.getName() + '/*' ;
+        this.server.get(name, (req, res) => {
+            let prefix: string = '/' + this.getName() ;
+            let url:string = req.url ;
+            if (url.startsWith(prefix)) {
+                url = url.substring(prefix.length);
+            }
+            let filepath = path.join(this.getContentDir(), url);
+            let b: string = path.basename(filepath);
+            res.contentType(b);
+            res.sendFile(filepath);
+        }) ;
+
+        this.server.get("/", (req, res) => {
+            console.log("get: " + req.url);
+        })
     }
 }

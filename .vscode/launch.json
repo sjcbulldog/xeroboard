@@ -16,7 +16,7 @@
             "args" : ["./build/index.js"],
             "outputCapture": "std",
             "sourceMaps": true,
-            "preLaunchTask": "compile"
+            "preLaunchTask": "build"
         }
     ]
 }

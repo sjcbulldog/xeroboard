@@ -31,6 +31,12 @@ export class XeroApp {
         return "http://127.0.0.1:" + this.restport + "/" ;
     }
 
+    public setURL(url: string) {
+        if (this.window) {
+            this.window.loadURL(url) ;
+        }
+    }
+
     public start(appid: string, ntaddr:string, ntport:number , restaddr: string, restport: number) {
         app.on('window-all-closed', () => { 
             if (process.platform !== 'darwin') {
@@ -45,12 +51,19 @@ export class XeroApp {
                 this.restport = this.createRestPort() ;
             }
             this.server = new express() ;
-            this.setupAppPaths() ;
+
+            if (!this.isMultipleApplets()) {
+                this.setupAppPaths() ;
+            }
 
             this.server.listen(this.restport, restaddr, 4, () => {
                 this.createNetworkTablesClient(appid, ntaddr, ntport) ;
             }) ;
         });
+    }
+
+    private isMultipleApplets() : boolean {
+        return this.applets.length > 1 ;
     }
 
     private setupAppPaths() : void {
@@ -89,7 +102,7 @@ export class XeroApp {
         this.nettables!.on('connected', () => {
             this.createMainBrowserWindow() ;
             for(let applet of this.applets) {
-                applet.start(this.nettables!, this.server!);
+                applet.start(this.nettables!, this.server!, this.isMultipleApplets());
             }
         }) ;
 
@@ -100,7 +113,7 @@ export class XeroApp {
         let list: Object[] = [] ;
         for(let applet of this.applets) {
             let obj = {
-                url: this.httpAddress() + applet.getName() + "/html/" + applet.getName() + ".html",
+                url: applet.getStartFile(),
                 title: applet.getTitle()
             }
             list.push(obj);
@@ -126,6 +139,7 @@ export class XeroApp {
                 preload: preloadpath,
             }
         }) ;
+        this.window.maximize();
         
         let docurl = this.httpAddress() + "app/index.html" ;
         this.window.loadURL(docurl);

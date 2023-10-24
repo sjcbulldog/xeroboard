@@ -21,14 +21,22 @@ export class XeroApplet {
         this.mainapp = mainapp;
     }
 
-    public start(nettable: NTClient, server: express) {
+    public start(nettable: NTClient, server: express, multiple: boolean) {
         this.nettable = nettable ;
         this.server = server ;
         this.setupServerPaths() ;
+
+        if (!multiple) {
+            this.mainapp.setURL(this.getStartFile()) ;
+        }
     }
 
     public getName() : string {
         return this.name ;
+    }
+
+    public getStartFile() : string {
+        return this.mainapp.httpAddress() + this.getName() + "/html/" + this.getName() + ".html" ;
     }
 
     //

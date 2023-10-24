@@ -10,8 +10,8 @@ export class tree extends XeroApplet {
         super(mainapp, "tree");
     }
 
-    public start(nettable: NTClient, server: express) {
-        super.start(nettable, server) ;
+    public start(nettable: NTClient, server: express, multiple: boolean) {
+        super.start(nettable, server, multiple) ;
 
         this.registerRestRequest('tables', (req, res) => { this.tables(req, res) ; }) ;
 

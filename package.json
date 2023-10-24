@@ -4,7 +4,7 @@
   "description": "A view board program for FRC robotics",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && node copyapplets.js"
+    "build": "tsc && node copy.js"
   },
   "author": "",
   "license": "ISC",

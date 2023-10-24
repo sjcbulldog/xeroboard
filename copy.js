@@ -62,12 +62,30 @@ function copyApplet(applet) {
     count++ ;
 }
 
+function copyAppFiles() {
+    console.log("Copying main 'app' files")
+    const src = path.join(__dirname, 'src', 'app');
+    const dest = path.join(__dirname, 'content', 'app');
+
+    try { 
+        fse.copySync(src, dest) ;
+    }
+    catch(err) {
+        console.log("    Cannot copy main 'app' files: " + err) ;
+        console.log("      src: " + src) ;
+        console.log("      dest: " + dest + "'");
+        process.exit(1);
+    }
+}
+
 function copyAll() {
     let files = fs.readdirSync(basedir) ;
     console.log("Copying applet files");
     for(let file of files) {
         copyApplet(file) ;
     }
+
+    copyAppFiles() ;
 }
 
 copyAll() ;

@@ -3,10 +3,11 @@ import { XeroApplet } from "../../../xeroboard/XeroApplet";
 import { NTLooseObject } from '../../../nt4/NTTopic';
 import { NTTopicNode } from '../../../nt4/NTTopicNode';
 import { NTClient } from '../../../nt4/NTClient';
+import { XeroApp } from '../../../xeroboard/XeroApp';
 
 export class tree extends XeroApplet {
-    public constructor() {
-        super("tree");
+    public constructor(mainapp: XeroApp) {
+        super(mainapp, "tree");
     }
 
     public start(nettable: NTClient, server: express) {
@@ -22,6 +23,10 @@ export class tree extends XeroApplet {
             topicsonly: false,
             prefix: true
         }) ;
+    }
+
+    public getTitle() : string {
+        return "NT Tree View" ;
     }
 
     private createLooseObj(node: NTTopicNode) : NTLooseObject {

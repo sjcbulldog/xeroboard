@@ -265,7 +265,7 @@ export class NTClient extends EventEmitter {
                 else {
                     let name: string | undefined = this.topics_.getNameFromId(msg.id_);
                     if (name !== undefined) {
-                        this.logger_.log(NTMessageType.Warning, "set value for topic name '%s'", name);
+                        this.logger_.log(NTMessageType.Debug, "set value for topic name '%s'", name);
                     }
                 }
             }

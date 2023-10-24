@@ -1,7 +1,8 @@
 import express, { Express, Request, Response } from 'express';
 import path from 'path' ;
 import { NTClient } from '../nt4/NTClient';
-import { BrowserWindow } from 'electron';
+import { XeroApp } from './XeroApp';
+import { TabGroup } from 'electron-tabs';
 
 export interface RestHandler { (req: Request<{}, any, any, any, Record<string, any>>, res: Response<any, Record<string, any>>): void }
 
@@ -9,37 +10,32 @@ export class XeroApplet {
     private name: string ;
     private nettable: NTClient | null ;
     private server: express | null ;
-    private window: BrowserWindow | null ;
     private handlers: Map<string, RestHandler> ;
+    private mainapp: XeroApp ;
 
-    public constructor(name: string) {
+    public constructor(mainapp: XeroApp, name: string) {
         this.nettable = null ;
         this.server = null ;
-        this.window = null ;
         this.name = name ;
         this.handlers = new Map<string, RestHandler>() ;
+        this.mainapp = mainapp;
     }
 
     public start(nettable: NTClient, server: express) {
         this.nettable = nettable ;
         this.server = server ;
-        this.window = new BrowserWindow(
-            { 
-                width: 800, 
-                height: 600,
-                webPreferences: {
-                    nodeIntegration: false,
-                    contextIsolation: true
-                }
-            }) ;
-            
-        let docurl = "http://127.0.0.1:9000/" + this.getName() + "/html/" + this.getName() + ".html" ;
-        this.window.loadURL(docurl);
-
         this.setupServerPaths() ;
     }
 
     public getName() : string {
+        return this.name ;
+    }
+
+    //
+    // Derived classes can provide a more meaningful title.  This is only used to
+    // show to humans and never used for paths or other computed stuff.
+    //
+    public getTitle() : string {
         return this.name ;
     }
 

@@ -9,6 +9,6 @@ const restaddr: string = '127.0.0.1' ;
 const restport: number = -1 ;
 
 const ntapp = new XeroApp() ;
-// ntapp.addApplet(new simple());
-ntapp.addApplet(new tree());
+ntapp.addApplet(new simple(ntapp));
+ntapp.addApplet(new tree(ntapp));
 ntapp.start(appid, ntaddr, ntport, restaddr, restport) ;

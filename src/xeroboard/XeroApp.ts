@@ -3,7 +3,8 @@ import { NTClient } from '../nt4/NTClient';
 import { NTConsoleSink } from '../nt4/NTConsoleSink';
 import { NTMessageType } from '../nt4/NTMessageLogger';
 import { XeroApplet } from './XeroApplet';
-import electron from 'electron';
+import electron, { BrowserWindow, ipcMain } from 'electron';
+import path from 'path';
 
 const app = electron.app; 
 
@@ -11,15 +12,23 @@ export class XeroApp {
     private server: express | null ;
     private nettables: NTClient | null ;
     private applets: XeroApplet[] ;
+    private restport: number ;
+    private window: BrowserWindow | null ;
 
     public constructor() {
         this.server = null ;
         this.nettables = null ;
         this.applets = [] ;
+        this.restport = -1 ;
+        this.window = null ;
     }
 
     public addApplet(applet: XeroApplet) : void {
         this.applets.push(applet) ;
+    }
+
+    public httpAddress() : string {
+        return "http://127.0.0.1:" + this.restport + "/" ;
     }
 
     public start(appid: string, ntaddr:string, ntport:number , restaddr: string, restport: number) {
@@ -30,18 +39,36 @@ export class XeroApp {
         });
 
         app.on('ready', () => {
-            if (restport === -1) {
-                restport = this.createRestPort() ;
+            this.restport = restport ;
+
+            if (this.restport === -1) {
+                this.restport = this.createRestPort() ;
             }
             this.server = new express() ;
-            this.server.listen(restport, restaddr, 4, () => {
+            this.setupAppPaths() ;
+
+            this.server.listen(this.restport, restaddr, 4, () => {
                 this.createNetworkTablesClient(appid, ntaddr, ntport) ;
             }) ;
         });
     }
 
-    public startLocalServer(restaddr: string, restport: number) : boolean {
-        return true;
+    private setupAppPaths() : void {
+        let name = '/app/electron-tabs.js' ;
+        this.server.get(name, (req, res) => {
+            let filepath = path.join(__dirname, '../../node_modules/electron-tabs/dist/electron-tabs.js');
+            let b: string = path.basename(filepath);
+            res.contentType(b);
+            res.sendFile(filepath);
+        }) ;
+
+        name = '/app/*' ;
+        this.server.get(name, (req, res) => {
+            let filepath = path.join(__dirname, '..', '..', 'content', req.path);
+            let b: string = path.basename(filepath);
+            res.contentType(b);
+            res.sendFile(filepath);
+        }) ;
     }
 
     private createNetworkTablesClient(appid: string, ntaddr: string, ntport: number) : boolean {
@@ -60,12 +87,48 @@ export class XeroApp {
         this.nettables.connect() ;
 
         this.nettables!.on('connected', () => {
+            this.createMainBrowserWindow() ;
             for(let applet of this.applets) {
                 applet.start(this.nettables!, this.server!);
             }
         }) ;
 
         return true ;
+    }
+
+    private getApplets() : Object[] {
+        let list: Object[] = [] ;
+        for(let applet of this.applets) {
+            let obj = {
+                url: this.httpAddress() + applet.getName() + "/html/" + applet.getName() + ".html",
+                title: applet.getTitle()
+            }
+            list.push(obj);
+        }
+
+        return list ;
+    }
+
+    private createMainBrowserWindow() : void {
+        ipcMain.handle('applets:getall', () => {
+            return this.getApplets() ;
+        }) ;
+
+        const preloadpath:string = path.join(__dirname, "preload.js");
+        this.window = new BrowserWindow(
+        { 
+            width: 800, 
+            height: 600,
+            webPreferences: {
+                nodeIntegration: false,
+                contextIsolation: true,
+                webviewTag: true,
+                preload: preloadpath,
+            }
+        }) ;
+        
+        let docurl = this.httpAddress() + "app/index.html" ;
+        this.window.loadURL(docurl);
     }
 
     private createRestPort() : number {

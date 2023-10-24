@@ -8,8 +8,8 @@ function loadTree() {
             url: "/tree/rest/tables"
         },
         columns: [
-            { id: "*", title: "Name", width: "160px" },
-            { id: "dtype", title: "Type", width: "120px" },
+            { id: "*", title: "Name", width: "400px" },
+            { id: "dtype", title: "Type", width: "100px" },
             { id: "value", title: "Value"}
         ],
         render: function (e) {

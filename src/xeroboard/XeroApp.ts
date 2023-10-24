@@ -132,6 +132,7 @@ export class XeroApp {
         { 
             width: 800, 
             height: 600,
+            title: "XeroBoard",
             webPreferences: {
                 nodeIntegration: false,
                 contextIsolation: true,
